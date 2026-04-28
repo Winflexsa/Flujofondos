@@ -58,6 +58,25 @@ body{min-height:100vh;background-image:radial-gradient(circle at 20% 10%, rgba(1
 .dropzone-hint{margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);letter-spacing:0.08em}
 .error-banner{margin-top:20px;padding:12px 16px;background:var(--oxide);color:var(--paper);font-size:13px;font-family:'JetBrains Mono',monospace}
 
+.slots-grid{margin-top:32px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.slot{display:flex;align-items:center;gap:16px;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);transition:all 0.15s}
+.slot.loaded{background:var(--paper);border-color:var(--moss);border-left:3px solid var(--moss)}
+.slot.error{border-color:var(--oxide);border-left:3px solid var(--oxide)}
+.slot-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);letter-spacing:0.1em;width:28px;flex-shrink:0}
+.slot-info{flex:1;min-width:0}
+.slot-title{font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;color:var(--ink)}
+.slot-opt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-mute);letter-spacing:0.1em;text-transform:uppercase;background:var(--paper-2);padding:2px 6px;margin-left:8px;font-weight:400}
+.slot-desc{font-size:12px;color:var(--ink-mute);margin-top:2px}
+.slot-status{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-mute);flex-shrink:0;text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot.loaded .slot-status{color:var(--moss-deep);font-weight:600}
+.slot.error .slot-status{color:var(--oxide-deep);font-weight:600}
+#continuarBtn{margin-top:24px}
+
+/* Banner de control cruzado */
+.cruce-banner{margin-bottom:24px;padding:14px 18px;background:rgba(184,71,42,0.08);border-left:3px solid var(--oxide);font-size:13px;color:var(--ink-soft)}
+.cruce-banner.ok{background:rgba(61,90,61,0.06);border-color:var(--moss);color:var(--moss-deep)}
+.cruce-banner strong{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+
 /* ======== NAV ======== */
 .nav{border-bottom:1px solid var(--rule);background:var(--paper);position:sticky;top:0;z-index:20;padding:0 40px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
@@ -202,19 +221,51 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <div class="brand">
       <span class="brand-eyebrow">Winflex S.A. · Análisis Financiero</span>
       <h1 class="brand-title">Flujo de <em>Fondos</em></h1>
-      <span class="brand-meta">EJ JUL→JUN · TOTAL 1 (B) + TOTAL 2 (N)</span>
+      <span class="brand-meta">EJ JUL→JUN · 3 ARCHIVOS · CONTROL CRUZADO</span>
     </div>
   </header>
   <div class="empty">
     <div class="dropzone" id="dropzone">
-      <div class="dropzone-eyebrow">— Subir archivo mensual</div>
-      <h2 class="dropzone-title">Arrastrá tu <em>flujo de fondos</em><br>o seleccionalo desde la PC</h2>
-      <p class="dropzone-sub">La app detecta sola la estructura del archivo (Total 1 / Total 2 / Total General, categorías, meses) y arma el análisis. No reemplaza tu Excel — lo lee.</p>
-      <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
+      <div class="dropzone-eyebrow">— Subir archivos mensuales</div>
+      <h2 class="dropzone-title">Arrastrá tus <em>3 archivos</em><br>o seleccionalos uno por uno</h2>
+      <p class="dropzone-sub">La app detecta sola cuál es cuál (flujo de fondos, detalle de ventas, detalle de compras) y arma el análisis con control cruzado entre los tres. <strong>Solo el flujo de fondos es obligatorio</strong> — los otros dos suman vista de detalle por producto.</p>
+      <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" multiple style="display:none">
       <button class="btn primary" onclick="document.getElementById('fileInput').click()">
-        <span class="dot"></span> Seleccionar archivo .xlsx
+        <span class="dot"></span> Seleccionar archivos
       </button>
-      <div class="dropzone-hint">Formatos: XLSX · XLSM · XLS &nbsp;·&nbsp; Procesamiento local</div>
+
+      <div class="slots-grid" id="slotsGrid">
+        <div class="slot" data-tipo="flujo">
+          <div class="slot-num">01</div>
+          <div class="slot-info">
+            <div class="slot-title">Flujo de Fondos</div>
+            <div class="slot-desc">El principal — categorías de ingresos y egresos por mes</div>
+          </div>
+          <div class="slot-status" id="slot-flujo">Pendiente</div>
+        </div>
+        <div class="slot" data-tipo="ventas">
+          <div class="slot-num">02</div>
+          <div class="slot-info">
+            <div class="slot-title">Detalle de Ventas <span class="slot-opt">opcional</span></div>
+            <div class="slot-desc">Ventas desglosadas por línea: PET, Flexibles, Bandejas</div>
+          </div>
+          <div class="slot-status" id="slot-ventas">Pendiente</div>
+        </div>
+        <div class="slot" data-tipo="compras">
+          <div class="slot-num">03</div>
+          <div class="slot-info">
+            <div class="slot-title">Detalle de Compras <span class="slot-opt">opcional</span></div>
+            <div class="slot-desc">Compras MP por categoría: PET, Flexibles, Otros, Amcor</div>
+          </div>
+          <div class="slot-status" id="slot-compras">Pendiente</div>
+        </div>
+      </div>
+
+      <button class="btn accent hidden" id="continuarBtn" onclick="entrarApp()">
+        <span class="dot"></span> Continuar al análisis
+      </button>
+
+      <div class="dropzone-hint">XLSX · XLSM · XLS &nbsp;·&nbsp; Todo se procesa local en tu navegador</div>
       <div id="errorBanner" class="error-banner hidden"></div>
     </div>
   </div>
@@ -233,9 +284,9 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <button class="btn" onclick="document.getElementById('fileInput2').click()">
       Cambiar archivo
     </button>
-    <input type="file" id="fileInput2" accept=".xlsx,.xlsm,.xls" style="display:none">
+    <input type="file" id="fileInput2" accept=".xlsx,.xlsm,.xls" multiple style="display:none">
     <button class="btn accent" id="aiBtn" onclick="generarAnalisisIA()">
-      <span class="dot"></span> Análisis con IA
+      <span class="dot"></span> Copiar para IA
     </button>
   </div>
 </header>
@@ -247,7 +298,8 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
   <button class="nav-item" data-tab="byn"><span class="num">04</span>Blanca vs Negra</button>
   <button class="nav-item" data-tab="equilibrio"><span class="num">05</span>Punto de equilibrio</button>
   <button class="nav-item" data-tab="detalle"><span class="num">06</span>Detalle mensual</button>
-  <button class="nav-item" data-tab="ia"><span class="num">07</span>Conclusiones IA</button>
+  <button class="nav-item hidden" data-tab="productos" id="navProductos"><span class="num">07</span>Por producto</button>
+  <button class="nav-item" data-tab="ia"><span class="num">08</span>Conclusiones IA</button>
 </nav>
 
 <main>
@@ -592,29 +644,116 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
   </div>
 </section>
 
-<!-- ============== 07 · IA ============== -->
-<section class="section" id="sec-ia">
+<!-- ============== 07 · POR PRODUCTO ============== -->
+<section class="section" id="sec-productos">
   <div class="section-head">
     <div>
       <div class="section-eyebrow">— Vista 07</div>
-      <h2 class="section-title">Conclusiones <em>IA</em></h2>
-      <p class="section-sub">Análisis automático generado a partir del archivo. Identifica tendencias, alertas y oportunidades.</p>
+      <h2 class="section-title">Detalle por <em>producto</em></h2>
+      <p class="section-sub">Ventas, compras y margen bruto estimado por línea: PET, Flexibles, Bandejas. Requiere los archivos de detalle.</p>
+    </div>
+    <div class="pill" id="productosStatus">—</div>
+  </div>
+
+  <div id="productosNoData" class="card hidden" style="text-align:center;padding:48px 24px">
+    <p style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink-mute);font-style:italic">Subí los archivos de Detalle de Ventas y/o Detalle de Compras para activar esta vista.</p>
+  </div>
+
+  <div id="productosContent">
+    <!-- KPIs por producto -->
+    <div class="kpi-grid" id="kpiProductos"></div>
+
+    <!-- Control cruzado -->
+    <div class="card" id="controlCruzado">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">Validación</div>
+          <div class="card-title">Control <em>cruzado</em> entre archivos</div>
+        </div>
+      </div>
+      <div id="cruceContent"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-eyebrow">Mix de ventas</div>
+            <div class="card-title">% de cada <em>línea</em></div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartMixProductos"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-eyebrow">Margen bruto estimado</div>
+            <div class="card-title">Por <em>línea de producto</em></div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartMargenProductos"></canvas></div>
+        <p style="font-size:11px;color:var(--ink-mute);margin-top:8px;font-style:italic">Margen bruto = Ventas − Compras directas asignadas. PET y Bandejas comparten MP (PET compras), repartida proporcional a las ventas. Flexibles incluye Amcor.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">Evolución mensual</div>
+          <div class="card-title">Ventas por <em>línea</em> mes a mes</div>
+        </div>
+        <div class="legend" id="legendProductos"></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="chartEvolProductos"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">Detalle completo</div>
+          <div class="card-title">Tabla por <em>producto y mes</em></div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="tblProductos"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">% Blanca / Negra por producto</div>
+          <div class="card-title">Composición por <em>circuito</em></div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartBNProductos"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== 08 · IA ============== -->
+<section class="section" id="sec-ia">
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">— Vista 08</div>
+      <h2 class="section-title">Análisis con <em>IA</em></h2>
+      <p class="section-sub">Apretá el botón, se copia un prompt completo con todos los datos al portapapeles, y lo pegás en Claude. Te devuelve un informe ejecutivo en argentino.</p>
     </div>
     <button class="btn primary" onclick="generarAnalisisIA()" id="aiBtn2">
-      <span class="dot"></span> Generar / Regenerar
+      <span class="dot"></span> Copiar snapshot para IA
     </button>
   </div>
 
   <div class="card ai-card">
     <div class="card-head">
       <div>
-        <div class="card-eyebrow">Lectura financiera del año fiscal</div>
-        <div class="card-title">Informe <em>ejecutivo</em></div>
+        <div class="card-eyebrow">Prompt + datos del año fiscal</div>
+        <div class="card-title">Snapshot para <em>Claude</em></div>
       </div>
       <span class="pill oxide" id="aiTimestamp">Pendiente</span>
     </div>
     <div class="ai-output" id="aiOutput">
-      <div class="ai-empty">— Apretá <strong>Generar / Regenerar</strong> para producir el análisis con IA —</div>
+      <div class="ai-empty">— Apretá <strong>Copiar snapshot para IA</strong> y pegalo en Claude —</div>
     </div>
   </div>
 
@@ -623,7 +762,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
       <div class="card-head">
         <div>
           <div class="card-eyebrow">Snapshot</div>
-          <div class="card-title">Datos enviados a la <em>IA</em></div>
+          <div class="card-title">Qué se <em>copia</em></div>
         </div>
       </div>
       <div id="aiSnapshot"></div>
@@ -631,13 +770,18 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <div class="card">
       <div class="card-head">
         <div>
-          <div class="card-eyebrow">Cómo usar este informe</div>
-          <div class="card-title">Notas de <em>uso</em></div>
+          <div class="card-eyebrow">Cómo usar</div>
+          <div class="card-title">Pasos <em>simples</em></div>
         </div>
       </div>
-      <p style="font-family:'Fraunces',serif;font-size:16px;line-height:1.6;color:var(--ink-soft)"><em>El análisis de la IA es una <strong>lectura</strong>, no una verdad absoluta.</em> Sirve para detectar señales y arrancar discusiones, pero las decisiones siguen siendo tuyas. La IA no conoce contexto externo (mercado, clientes específicos, decisiones pasadas) — solo lo que está en el Excel.</p>
+      <ol style="font-family:'Fraunces',serif;font-size:16px;line-height:1.7;color:var(--ink-soft);padding-left:24px">
+        <li>Apretá <strong>"Copiar snapshot para IA"</strong>.</li>
+        <li>Abrí <strong>claude.ai</strong> (o la app de Claude) en una conversación nueva.</li>
+        <li>Pegá (Ctrl+V). El prompt ya viene armado con tono argentino y la estructura de informe.</li>
+        <li>Claude te devuelve el análisis: lectura general, alertas, estructura de costos, blanca vs negra, recomendaciones.</li>
+      </ol>
       <div class="divider"></div>
-      <p style="font-size:13px;color:var(--ink-mute)">Cada vez que cambies el archivo o que querás una nueva lectura, apretá <strong>Generar / Regenerar</strong>.</p>
+      <p style="font-size:13px;color:var(--ink-mute)"><em>El análisis es una lectura, no una verdad absoluta.</em> Claude no conoce el contexto externo (mercado, clientes, decisiones pasadas), solo lo que está en el Excel.</p>
     </div>
   </div>
 </section>
@@ -671,7 +815,12 @@ const FIJO_DEFAULT = {
   'Impuestos': 0
 };
 
-let DATA = null;
+const PRODUCTOS = ['PET','Flexibles','Bandejas'];
+const COMPRAS_CATS = ['PET','Flexibles','Otros','Amcor'];
+
+let DATA = null;          // Flujo de fondos (principal)
+let VENTAS_DET = null;    // Detalle ventas por producto (opcional)
+let COMPRAS_DET = null;   // Detalle compras por categoría (opcional)
 let CHARTS = {};
 let FIJO_PCT = {...FIJO_DEFAULT};
 
@@ -801,8 +950,219 @@ function parseWorkbook(wb){
 }
 
 /* ============================================================
-   FORMATTERS
+   PARSER: DETALLE VENTAS POR PRODUCTO
+   Estructura: 'PET 1', 'PET 2', 'FLEXIBLES  1', etc. en col B
+   Meses en columnas D→O
    ============================================================ */
+function parseDetalleVentas(wb){
+  // Buscar la hoja con los datos: la primera que tenga 'PET' y 'BANDEJAS' como labels
+  let targetSheet = null;
+  let targetRows = null;
+  for(const sn of wb.SheetNames){
+    const ws = wb.Sheets[sn];
+    const arr = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null}).map(r=>r||[]);
+    const txt = JSON.stringify(arr).toUpperCase();
+    if(txt.includes('PET') && txt.includes('BANDEJAS') && txt.includes('FLEXIBLES')){
+      targetSheet = sn; targetRows = arr; break;
+    }
+  }
+  if(!targetRows) throw new Error('No encontré hoja con detalle de productos (PET/Flexibles/Bandejas)');
+
+  const rows = targetRows;
+
+  // Encontrar fila de header con meses (busca la fila que tenga "Acumuladas" o un mes)
+  let headerRow = -1;
+  for(let i=0;i<rows.length;i++){
+    const r = rows[i];
+    for(let c=0;c<r.length;c++){
+      if(typeof r[c]==='string' && MESES.some(m=>m.toLowerCase()===(r[c]||'').toLowerCase().trim())){
+        headerRow = i; break;
+      }
+    }
+    if(headerRow>=0) break;
+  }
+  if(headerRow<0) throw new Error('No encontré la fila de header con meses en detalle de ventas');
+
+  const monthCols = [];
+  for(let c=0;c<rows[headerRow].length;c++){
+    const v = rows[headerRow][c];
+    if(typeof v==='string' && MESES.some(m=>m.toLowerCase()===v.toLowerCase().trim())){
+      monthCols.push({col:c, mes:v.trim()});
+    }
+  }
+
+  function num(v){ if(v===null||v===undefined||v==='') return 0; const n=Number(v); return isFinite(n)?n:0; }
+
+  // Buscar filas que coincidan con "PET 1", "PET 2", "FLEXIBLES 1", etc.
+  function findProductRow(productName, circuito){
+    const target = (productName+' '+circuito).toLowerCase().replace(/\s+/g,' ');
+    for(let i=headerRow;i<rows.length;i++){
+      for(let c=0;c<Math.min(rows[i].length,4);c++){
+        const v = rows[i][c];
+        if(typeof v==='string'){
+          const norm = v.toLowerCase().replace(/\s+/g,' ').trim();
+          if(norm===target) return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  function readProductoLine(productKey, productNameInFile){
+    const t1Row = findProductRow(productNameInFile,'1');
+    const t2Row = findProductRow(productNameInFile,'2');
+    function readRow(rowIdx){
+      if(rowIdx<0) return {acum:0, meses:monthCols.map(_=>0)};
+      // Acum: buscar la celda inmediatamente anterior a la primera col de mes
+      const acumCol = Math.max(0, monthCols[0].col-1);
+      const acum = num(rows[rowIdx][acumCol]);
+      return {acum, meses: monthCols.map(mc=>num(rows[rowIdx][mc.col]))};
+    }
+    const t1 = readRow(t1Row);
+    const t2 = readRow(t2Row);
+    return {
+      total1: t1,
+      total2: t2,
+      totalGeneral: {
+        acum: t1.acum+t2.acum,
+        meses: t1.meses.map((v,i)=>v+t2.meses[i])
+      }
+    };
+  }
+
+  const productos = {
+    PET: readProductoLine('PET','PET'),
+    Flexibles: readProductoLine('Flexibles','FLEXIBLES'),
+    Bandejas: readProductoLine('Bandejas','BANDEJAS')
+  };
+
+  return {
+    monthCols,
+    productos
+  };
+}
+
+/* ============================================================
+   PARSER: DETALLE COMPRAS POR CATEGORÍA
+   Estructura: meses en filas, categorías (PET/Flexibles/Otros/Amcor) en columnas
+   ============================================================ */
+function parseDetalleCompras(wb){
+  // Buscar la hoja Resumen (puede tener espacios)
+  let targetSheet = null;
+  let targetRows = null;
+  for(const sn of wb.SheetNames){
+    if(sn.toLowerCase().trim()==='resumen'){
+      targetSheet = sn;
+      targetRows = XLSX.utils.sheet_to_json(wb.Sheets[sn], {header:1, raw:true, defval:null}).map(r=>r||[]);
+      break;
+    }
+  }
+  // Si no hay 'Resumen', tomar la primera hoja
+  if(!targetRows){
+    targetSheet = wb.SheetNames[0];
+    targetRows = XLSX.utils.sheet_to_json(wb.Sheets[targetSheet], {header:1, raw:true, defval:null}).map(r=>r||[]);
+  }
+  const rows = targetRows;
+
+  // R1 (idx 0) tiene categorías: PET, FLEXIBLES, OTROS, AMCOR, TOTAL
+  // R2 (idx 1) tiene 1/2 bajo cada categoría que las tenga
+  // Detectar las columnas
+  const headerCat = rows[0]||[];
+  const headerSub = rows[1]||[];
+
+  function num(v){ if(v===null||v===undefined||v==='') return 0; const n=Number(v); return isFinite(n)?n:0; }
+
+  // Mapear cada categoría a sus columnas {b: colBlanca, n: colNegra}
+  const catCols = {};
+  let currentCat = null;
+  for(let c=0;c<Math.max(headerCat.length, headerSub.length);c++){
+    const cat = (headerCat[c]||'').toString().trim();
+    const sub = headerSub[c]; // puede ser 1, 2, número, o null
+    if(cat){
+      // Nueva categoría — ignorar TOTAL
+      if(cat.toUpperCase()==='TOTAL') currentCat = null;
+      else {
+        currentCat = cat.toUpperCase();
+        catCols[currentCat] = {b:-1, n:-1, single:-1};
+      }
+    }
+    if(currentCat){
+      if(sub===1) catCols[currentCat].b = c;
+      else if(sub===2) catCols[currentCat].n = c;
+      else if(sub===null && headerCat[c]){
+        // Sin subheader: única columna (ej. AMCOR)
+        catCols[currentCat].single = c;
+      }
+    }
+  }
+
+  // Detectar las filas mensuales: las que tienen un nombre de mes en col A
+  const monthRows = [];
+  for(let i=2;i<rows.length;i++){
+    const v = rows[i][0];
+    if(typeof v==='string' && MESES.some(m=>m.toLowerCase()===v.toLowerCase().trim())){
+      monthRows.push({row:i, mes:v.trim()});
+    }
+  }
+
+  // Para cada categoría, leer mensuales B y N
+  const categorias = {};
+  Object.keys(catCols).forEach(cat=>{
+    const cc = catCols[cat];
+    const meses_b = monthRows.map(mr=>cc.b>=0?num(rows[mr.row][cc.b]):0);
+    const meses_n = monthRows.map(mr=>cc.n>=0?num(rows[mr.row][cc.n]):0);
+    const meses_single = monthRows.map(mr=>cc.single>=0?num(rows[mr.row][cc.single]):0);
+    // Si tiene single (Amcor), tratarlo como Blanca
+    const blancaTotal = meses_b.map((v,i)=>v + meses_single[i]);
+    const blancaAcum = blancaTotal.reduce((s,x)=>s+x,0);
+    const negraAcum = meses_n.reduce((s,x)=>s+x,0);
+    categorias[cat] = {
+      total1: {acum: blancaAcum, meses: blancaTotal},
+      total2: {acum: negraAcum, meses: meses_n},
+      totalGeneral: {
+        acum: blancaAcum + negraAcum,
+        meses: blancaTotal.map((v,i)=>v+meses_n[i])
+      }
+    };
+  });
+
+  // Normalizar nombres a las claves canónicas
+  const norm = {};
+  if(categorias['PET']) norm.PET = categorias['PET'];
+  if(categorias['FLEXIBLES']) norm.Flexibles = categorias['FLEXIBLES'];
+  if(categorias['OTROS']) norm.Otros = categorias['OTROS'];
+  if(categorias['AMCOR']) norm.Amcor = categorias['AMCOR'];
+
+  return {
+    monthRows,
+    categorias: norm
+  };
+}
+
+/* ============================================================
+   DETECCIÓN DEL TIPO DE ARCHIVO
+   Mira el contenido para distinguir: flujo, detalleVentas, detalleCompras
+   ============================================================ */
+function detectarTipoArchivo(wb){
+  // Leer texto completo de todas las hojas (sin slice — los archivos son chicos)
+  let allText = '';
+  for(const sn of wb.SheetNames){
+    allText += sn+' ';
+    try{
+      const arr = XLSX.utils.sheet_to_json(wb.Sheets[sn], {header:1, raw:true, defval:null});
+      allText += JSON.stringify(arr).toUpperCase()+' ';
+    }catch(e){}
+  }
+  const T = allText;
+
+  // Detalle compras: tiene 'AMCOR' (proveedor)
+  if(T.includes('AMCOR') && T.includes('PET') && T.includes('FLEXIBLES')) return 'compras';
+  // Detalle ventas: productos con sub-circuitos por línea ("PET 1", "FLEXIBLES 1", "BANDEJAS 1")
+  if(T.includes('FLEXIBLES  1')||T.includes('FLEXIBLES 1')||T.includes('BANDEJAS  1')||T.includes('BANDEJAS 1')||T.includes('PET 1')) return 'ventas';
+  // Flujo de fondos: tiene 'GANANCIA' como categoría
+  if(T.includes('GANANCIA')) return 'flujo';
+  return 'desconocido';
+}
 function fmtMoney(n, decimals=0){
   if(n===null||n===undefined||isNaN(n)) return '—';
   const sign = n<0?'-':'';
@@ -930,6 +1290,18 @@ function renderResumen(){
   const desvioUlt = ultimoCompleto ? (ultimoCompVal - promedioVentas)/promedioVentas*100 : 0;
 
   const hi = document.getElementById('highlights');
+  let mixHTML = '';
+  if(VENTAS_DET){
+    const lineas = ['PET','Flexibles','Bandejas'];
+    const colorsLineas = {PET:'var(--ink)', Flexibles:'var(--oxide)', Bandejas:'var(--moss-deep)'};
+    const totalLineas = lineas.reduce((s,L)=>s+VENTAS_DET.productos[L].totalGeneral.acum,0);
+    mixHTML = `<div class="stat-line" style="border-top:2px solid var(--ink);padding-top:14px;margin-top:6px"><span class="stat-label" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--oxide-deep)">Mix por línea</span></div>` + lineas.map(L=>{
+      const t = VENTAS_DET.productos[L].totalGeneral.acum;
+      const pct = totalLineas>0 ? t/totalLineas*100 : 0;
+      return `<div class="stat-line"><span class="stat-label"><span class="sw" style="display:inline-block;width:8px;height:8px;background:${colorsLineas[L]};margin-right:8px;vertical-align:middle"></span>${L}</span><span class="stat-val">$${fmtMoney(t,1)} <span class="mute">· ${pct.toFixed(1).replace('.',',')}%</span></span></div>`;
+    }).join('');
+  }
+
   hi.innerHTML = `
     <div class="stat-line"><span class="stat-label">Mejor mes en ventas</span><span class="stat-val pos">${mejorVentas.mes} · $${fmtMoney(mejorVentas.val,1)}</span></div>
     <div class="stat-line"><span class="stat-label">Peor mes en ventas</span><span class="stat-val neg">${peorVentas.mes} · $${fmtMoney(peorVentas.val,1)}</span></div>
@@ -938,6 +1310,7 @@ function renderResumen(){
     <div class="stat-line"><span class="stat-label">Promedio ventas / mes</span><span class="stat-val">$${fmtMoney(promedioVentas,1)}</span></div>
     ${ultimoCompleto?`<div class="stat-line"><span class="stat-label">${ultimoCompleto.mes} vs promedio</span><span class="stat-val ${desvioUlt>=0?'pos':'neg'}">${desvioUlt>=0?'+':''}${desvioUlt.toFixed(1).replace('.',',')}%</span></div>`:''}
     ${mesesParciales.length>0?`<div class="stat-line" style="border-top:2px solid var(--oxide);padding-top:14px;margin-top:6px"><span class="stat-label" style="color:var(--oxide-deep)">⚠ Meses parciales detectados</span><span class="stat-val neg">${mesesParciales.map(m=>m.mes.slice(0,3)).join(', ')}</span></div>`:''}
+    ${mixHTML}
   `;
 
   // BLANCA vs NEGRA RESUMEN CHART
@@ -1329,8 +1702,267 @@ function renderDetalle(){
 }
 
 /* ============================================================
-   IA — Llamada a window.claude.complete
+   RENDER: 07 — DETALLE POR PRODUCTO (PET / Flexibles / Bandejas)
+   Mapeo compras → líneas:
+   - PET compras → se reparte entre ventas PET y Bandejas (proporcional a sus ventas)
+   - Flexibles compras + Amcor → ventas Flexibles
+   - Otros → categoría aparte sin asignar a línea
    ============================================================ */
+function renderProductos(){
+  // Si no hay ningún detalle, mostrar mensaje
+  if(!VENTAS_DET && !COMPRAS_DET){
+    document.getElementById('productosNoData').classList.remove('hidden');
+    document.getElementById('productosContent').classList.add('hidden');
+    return;
+  }
+  document.getElementById('productosNoData').classList.add('hidden');
+  document.getElementById('productosContent').classList.remove('hidden');
+
+  // ===== 1. ARMAR DATOS POR LÍNEA =====
+  // Ventas por línea
+  const lineas = ['PET','Flexibles','Bandejas'];
+  const colorsLineas = {PET:COLORS.ink, Flexibles:COLORS.oxide, Bandejas:COLORS.moss};
+  const ventasPorLinea = {};
+  if(VENTAS_DET){
+    lineas.forEach(L=>{
+      ventasPorLinea[L] = {
+        ventasT1: VENTAS_DET.productos[L].total1.acum,
+        ventasT2: VENTAS_DET.productos[L].total2.acum,
+        ventasTotal: VENTAS_DET.productos[L].totalGeneral.acum,
+        ventasMeses: VENTAS_DET.productos[L].totalGeneral.meses
+      };
+    });
+  }
+
+  // Compras asignadas por línea
+  const comprasPorLinea = {PET:0, Flexibles:0, Bandejas:0};
+  let comprasOtros = 0;
+  if(COMPRAS_DET){
+    const cPET = COMPRAS_DET.categorias['PET'] ? COMPRAS_DET.categorias['PET'].totalGeneral.acum : 0;
+    const cFlex = COMPRAS_DET.categorias['Flexibles'] ? COMPRAS_DET.categorias['Flexibles'].totalGeneral.acum : 0;
+    const cAmcor = COMPRAS_DET.categorias['Amcor'] ? COMPRAS_DET.categorias['Amcor'].totalGeneral.acum : 0;
+    const cOtros = COMPRAS_DET.categorias['Otros'] ? COMPRAS_DET.categorias['Otros'].totalGeneral.acum : 0;
+    comprasOtros = cOtros;
+    // Repartir cPET entre PET y Bandejas según proporción de ventas
+    if(VENTAS_DET){
+      const ventasPETline = ventasPorLinea['PET'].ventasTotal;
+      const ventasBandejas = ventasPorLinea['Bandejas'].ventasTotal;
+      const totalPETBand = ventasPETline + ventasBandejas;
+      if(totalPETBand>0){
+        comprasPorLinea.PET = cPET * (ventasPETline/totalPETBand);
+        comprasPorLinea.Bandejas = cPET * (ventasBandejas/totalPETBand);
+      } else {
+        comprasPorLinea.PET = cPET;
+      }
+    } else {
+      comprasPorLinea.PET = cPET;
+    }
+    comprasPorLinea.Flexibles = cFlex + cAmcor;
+  }
+
+  // ===== 2. KPIs POR PRODUCTO =====
+  const kpiEl = document.getElementById('kpiProductos');
+  // Decidir layout: si hay 3 líneas + Otros = 4 columnas; si solo ventas = 3 columnas
+  const hayCompras = !!COMPRAS_DET;
+  kpiEl.className = 'kpi-grid '+(hayCompras?'cols-4':'');
+  let kpiHTML = '';
+  lineas.forEach(L=>{
+    const v = ventasPorLinea[L]?ventasPorLinea[L].ventasTotal:0;
+    const c = comprasPorLinea[L]||0;
+    const margenBruto = v - c;
+    const margenPct = v>0 ? margenBruto/v*100 : 0;
+    kpiHTML += `
+      <div class="kpi" style="border-top:3px solid ${colorsLineas[L]}">
+        <span class="kpi-label">${L}</span>
+        <div class="kpi-value"><span class="currency">$</span>${fmtMoney(v,2)}</div>
+        <div class="kpi-foot">
+          ${hayCompras?`MP: $${fmtMoney(c,1)} · Margen bruto: <span class="delta ${margenPct>=20?'up':'down'}">${margenPct.toFixed(1).replace('.',',')}%</span>`:`Solo ventas (sin detalle de compras)`}
+        </div>
+      </div>`;
+  });
+  if(hayCompras){
+    kpiHTML += `
+      <div class="kpi" style="border-top:3px solid var(--mustard)">
+        <span class="kpi-label">Otros (sin asignar)</span>
+        <div class="kpi-value"><span class="currency">$</span>${fmtMoney(comprasOtros,2)}</div>
+        <div class="kpi-foot">Compras genéricas no asignadas</div>
+      </div>`;
+  }
+  kpiEl.innerHTML = kpiHTML;
+
+  // Status pill
+  const statusEl = document.getElementById('productosStatus');
+  const fuentes = [];
+  if(VENTAS_DET) fuentes.push('VENTAS');
+  if(COMPRAS_DET) fuentes.push('COMPRAS');
+  statusEl.textContent = 'FUENTES: '+fuentes.join(' + ');
+
+  // ===== 3. CONTROL CRUZADO =====
+  const cruceEl = document.getElementById('cruceContent');
+  const checks = [];
+  // Cruce ventas
+  if(VENTAS_DET && DATA){
+    const flujoVT1 = DATA.ventas.total1.acum;
+    const flujoVT2 = DATA.ventas.total2.acum;
+    const detVT1 = lineas.reduce((s,L)=>s+VENTAS_DET.productos[L].total1.acum,0);
+    const detVT2 = lineas.reduce((s,L)=>s+VENTAS_DET.productos[L].total2.acum,0);
+    const diffT1 = detVT1-flujoVT1, diffT2 = detVT2-flujoVT2;
+    const pctT1 = flujoVT1>0?Math.abs(diffT1)/flujoVT1*100:0;
+    const pctT2 = flujoVT2>0?Math.abs(diffT2)/flujoVT2*100:0;
+    const okV = pctT1<1 && pctT2<1;
+    checks.push({
+      titulo:'Ventas',
+      ok:okV,
+      msg: okV
+        ? `Cuadran al peso. Flujo: $${fmtMoney(flujoVT1+flujoVT2,2)} = Detalle: $${fmtMoney(detVT1+detVT2,2)}`
+        : `Diferencias detectadas. Flujo Total 1: $${fmtMoney(flujoVT1,2)} vs Detalle: $${fmtMoney(detVT1,2)} (${diffT1>=0?'+':''}${fmtMoney(diffT1)}). Flujo Total 2: $${fmtMoney(flujoVT2,2)} vs Detalle: $${fmtMoney(detVT2,2)} (${diffT2>=0?'+':''}${fmtMoney(diffT2)}).`
+    });
+  }
+  // Cruce compras
+  if(COMPRAS_DET && DATA && DATA.cats['Compras']){
+    const flujoCT1 = DATA.cats['Compras'].total1.acum;
+    const flujoCT2 = DATA.cats['Compras'].total2.acum;
+    const detCT1 = Object.values(COMPRAS_DET.categorias).reduce((s,c)=>s+c.total1.acum,0);
+    const detCT2 = Object.values(COMPRAS_DET.categorias).reduce((s,c)=>s+c.total2.acum,0);
+    const diffCT1 = detCT1-flujoCT1, diffCT2 = detCT2-flujoCT2;
+    const pctCT1 = flujoCT1>0?Math.abs(diffCT1)/flujoCT1*100:0;
+    const pctCT2 = flujoCT2>0?Math.abs(diffCT2)/flujoCT2*100:0;
+    const okC = pctCT1<1 && pctCT2<1;
+    checks.push({
+      titulo:'Compras',
+      ok:okC,
+      msg: okC
+        ? `Cuadran al peso. Flujo: $${fmtMoney(flujoCT1+flujoCT2,2)} = Detalle: $${fmtMoney(detCT1+detCT2,2)}`
+        : `Diferencias detectadas. Flujo Total 1: $${fmtMoney(flujoCT1,2)} vs Detalle: $${fmtMoney(detCT1,2)} (${diffCT1>=0?'+':''}${fmtMoney(diffCT1)}). Flujo Total 2: $${fmtMoney(flujoCT2,2)} vs Detalle: $${fmtMoney(detCT2,2)} (${diffCT2>=0?'+':''}${fmtMoney(diffCT2)}).`
+    });
+  }
+  cruceEl.innerHTML = checks.length===0
+    ? `<p class="muted" style="font-size:13px">Subí los archivos de detalle para activar el control cruzado.</p>`
+    : checks.map(c=>`<div class="cruce-banner ${c.ok?'ok':''}"><strong>${c.ok?'✓':'⚠'} ${c.titulo}</strong>${c.msg}</div>`).join('');
+
+  // ===== 4. CHART MIX DE VENTAS =====
+  destroyChart('mixProductos');
+  if(VENTAS_DET){
+    const data = lineas.map(L=>ventasPorLinea[L].ventasTotal);
+    CHARTS.mixProductos = new Chart(document.getElementById('chartMixProductos'),{
+      type:'doughnut',
+      data:{
+        labels:lineas,
+        datasets:[{data, backgroundColor:lineas.map(L=>colorsLineas[L]), borderWidth:2, borderColor:COLORS.paper}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+        plugins:{legend:{display:true,position:'bottom',labels:{font:{family:"'JetBrains Mono', monospace",size:10},padding:14,boxWidth:10,boxHeight:10}},
+          tooltip:{callbacks:{label:c=>{const total=data.reduce((s,x)=>s+x,0);return c.label+': $'+fmtMoneyFull(c.raw)+' ('+(c.raw/total*100).toFixed(1)+'%)';}}}}
+      }
+    });
+  }
+
+  // ===== 5. CHART MARGEN BRUTO POR LÍNEA =====
+  destroyChart('margenProductos');
+  if(VENTAS_DET && COMPRAS_DET){
+    const margenes = lineas.map(L=>{
+      const v = ventasPorLinea[L].ventasTotal;
+      const c = comprasPorLinea[L]||0;
+      return v>0 ? (v-c)/v*100 : 0;
+    });
+    CHARTS.margenProductos = new Chart(document.getElementById('chartMargenProductos'),{
+      type:'bar',
+      data:{
+        labels:lineas,
+        datasets:[{
+          label:'Margen bruto %',
+          data:margenes,
+          backgroundColor:lineas.map(L=>colorsLineas[L]),
+          borderRadius:0
+        }]
+      },
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{tooltip:{callbacks:{label:c=>'Margen bruto: '+c.raw.toFixed(1)+'%'}}},
+        scales:{x:{grid:{display:false}},y:{grid:{color:COLORS.rule},ticks:{callback:v=>v.toFixed(0)+'%'}}}
+      }
+    });
+  } else {
+    // Si solo hay ventas, mostrar mensaje en el canvas
+    const ctx = document.getElementById('chartMargenProductos').getContext('2d');
+    ctx.fillStyle = '#7a6f66';
+    ctx.font = '14px Fraunces';
+    ctx.textAlign = 'center';
+    ctx.fillText('Subí Detalle de Compras para ver margen bruto', ctx.canvas.width/2, ctx.canvas.height/2);
+  }
+
+  // ===== 6. EVOLUCIÓN MENSUAL POR LÍNEA =====
+  destroyChart('evolProductos');
+  if(VENTAS_DET){
+    // Usar los meses activos del flujo si está, sino todos los del detalle
+    const idxActivos = DATA ? DATA.mesesActivos.map((m,i)=>m.activo?i:-1).filter(i=>i>=0)
+                            : VENTAS_DET.monthCols.map((m,i)=>VENTAS_DET.productos.PET.totalGeneral.meses[i]>0?i:-1).filter(i=>i>=0);
+    const labels = idxActivos.map(i=>(DATA?DATA.mesesActivos[i].mes:VENTAS_DET.monthCols[i].mes).slice(0,3));
+    const datasets = lineas.map(L=>({
+      label:L,
+      data:idxActivos.map(i=>ventasPorLinea[L].ventasMeses[i]||0),
+      borderColor:colorsLineas[L],
+      backgroundColor:'transparent',
+      borderWidth:2.5,
+      pointRadius:4,
+      pointBackgroundColor:colorsLineas[L],
+      tension:0.25
+    }));
+    CHARTS.evolProductos = new Chart(document.getElementById('chartEvolProductos'),{
+      type:'line',
+      data:{labels,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': $'+fmtMoneyFull(c.raw)}}},
+        scales:{x:{grid:{display:false}},y:{grid:{color:COLORS.rule},ticks:{callback:v=>'$'+fmtMoney(v)}}}
+      }
+    });
+    document.getElementById('legendProductos').innerHTML = lineas.map(L=>`<span><span class="sw" style="background:${colorsLineas[L]}"></span>${L}</span>`).join('');
+  }
+
+  // ===== 7. TABLA POR PRODUCTO Y MES =====
+  if(VENTAS_DET){
+    const tbl = document.getElementById('tblProductos');
+    const monthLabels = VENTAS_DET.monthCols.map(m=>m.mes.slice(0,3));
+    let html = `<thead><tr><th>Producto</th><th>Circuito</th><th>Acum.</th>${monthLabels.map(m=>`<th>${m}</th>`).join('')}</tr></thead><tbody>`;
+    lineas.forEach((L,iL)=>{
+      const p = VENTAS_DET.productos[L];
+      const styleHead = `style="border-top:2px solid var(--ink);background:rgba(${L==='PET'?'26,22,18':L==='Flexibles'?'184,71,42':'61,90,61'},0.05)"`;
+      html += `<tr ${styleHead}><td rowspan="3"><strong>${L}</strong></td><td class="mute">T1 (B)</td><td>$${fmtMoney(p.total1.acum,1)}</td>${p.total1.meses.map(v=>`<td>${v?'$'+fmtMoney(v):'<span class="mute">—</span>'}</td>`).join('')}</tr>`;
+      html += `<tr ${styleHead}><td class="mute">T2 (N)</td><td>$${fmtMoney(p.total2.acum,1)}</td>${p.total2.meses.map(v=>`<td>${v?'$'+fmtMoney(v):'<span class="mute">—</span>'}</td>`).join('')}</tr>`;
+      html += `<tr ${styleHead}><td><strong>TG</strong></td><td><strong>$${fmtMoney(p.totalGeneral.acum,1)}</strong></td>${p.totalGeneral.meses.map(v=>`<td>${v?'<strong>$'+fmtMoney(v)+'</strong>':'<span class="mute">—</span>'}</td>`).join('')}</tr>`;
+    });
+    html += '</tbody>';
+    tbl.innerHTML = html;
+  }
+
+  // ===== 8. % BLANCA / NEGRA POR PRODUCTO =====
+  destroyChart('bnProductos');
+  if(VENTAS_DET){
+    const dataB = lineas.map(L=>{
+      const total = ventasPorLinea[L].ventasTotal;
+      return total>0 ? ventasPorLinea[L].ventasT1/total*100 : 0;
+    });
+    const dataN = lineas.map(L=>{
+      const total = ventasPorLinea[L].ventasTotal;
+      return total>0 ? ventasPorLinea[L].ventasT2/total*100 : 0;
+    });
+    CHARTS.bnProductos = new Chart(document.getElementById('chartBNProductos'),{
+      type:'bar',
+      data:{
+        labels:lineas,
+        datasets:[
+          {label:'Blanca',data:dataB,backgroundColor:COLORS.ink,borderRadius:0},
+          {label:'Negra',data:dataN,backgroundColor:COLORS.oxide,borderRadius:0}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+        plugins:{legend:{display:true,position:'bottom',labels:{font:{family:"'JetBrains Mono', monospace",size:10},padding:12,boxWidth:10,boxHeight:10}},
+          tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw.toFixed(1)+'%'}}},
+        scales:{x:{stacked:true,max:100,grid:{color:COLORS.rule},ticks:{callback:v=>v+'%'}},y:{stacked:true,grid:{display:false}}}
+      }
+    });
+  }
+}
+
 function buildSnapshotForAI(){
   const v = DATA.ventas.totalGeneral.acum;
   const g = DATA.ganancia.totalGeneral.acum;
@@ -1358,6 +1990,62 @@ function buildSnapshotForAI(){
     pctHistorico:DATA.cats[c].pctVentasAcum?+((DATA.cats[c].pctVentasAcum||0)*100).toFixed(2):null
   }));
 
+  // Productos (si hay detalle)
+  const PRODUCTOS_LIST = ['PET','Flexibles','Bandejas'];
+  let productos_ventas = null;
+  let compras_categorias = null;
+  let margen_por_linea = null;
+  if(VENTAS_DET){
+    productos_ventas = PRODUCTOS_LIST.map(p=>{
+      const o = VENTAS_DET.productos[p];
+      return {
+        linea: p,
+        ventas_total: Math.round(o.totalGeneral.acum),
+        ventas_blanca: Math.round(o.total1.acum),
+        ventas_negra: Math.round(o.total2.acum),
+        pct_mix: +(o.totalGeneral.acum/v*100).toFixed(1),
+        pct_negra_de_la_linea: o.totalGeneral.acum>0 ? +(o.total2.acum/o.totalGeneral.acum*100).toFixed(1) : 0
+      };
+    });
+  }
+  if(COMPRAS_DET){
+    compras_categorias = Object.keys(COMPRAS_DET.categorias).map(cat=>({
+      categoria: cat,
+      compras_total: Math.round(COMPRAS_DET.categorias[cat].totalGeneral.acum),
+      compras_blanca: Math.round(COMPRAS_DET.categorias[cat].total1.acum),
+      compras_negra: Math.round(COMPRAS_DET.categorias[cat].total2.acum)
+    }));
+  }
+  // Calcular margen por línea inline
+  if(VENTAS_DET && COMPRAS_DET){
+    const cats = COMPRAS_DET.categorias;
+    const cPET = cats.PET ? cats.PET.totalGeneral.acum : 0;
+    const cFlex = cats.Flexibles ? cats.Flexibles.totalGeneral.acum : 0;
+    const cAmcor = cats.Amcor ? cats.Amcor.totalGeneral.acum : 0;
+    const petV = VENTAS_DET.productos.PET.totalGeneral.acum;
+    const banV = VENTAS_DET.productos.Bandejas.totalGeneral.acum;
+    const totalPB = petV + banV;
+    const ratioPET = totalPB>0 ? petV/totalPB : 0.5;
+    const compMap = {
+      PET: { compras: cPET*ratioPET, asignacion:`${(ratioPET*100).toFixed(0)}% del PET compras (proporcional a ventas)` },
+      Flexibles: { compras: cFlex+cAmcor, asignacion:'Flexibles + Amcor' },
+      Bandejas: { compras: cPET*(1-ratioPET), asignacion:`${((1-ratioPET)*100).toFixed(0)}% del PET compras (proporcional a ventas)` }
+    };
+    margen_por_linea = PRODUCTOS_LIST.map(p=>{
+      const ventas = VENTAS_DET.productos[p].totalGeneral.acum;
+      const compras = compMap[p].compras;
+      const mb = ventas - compras;
+      return {
+        linea: p,
+        ventas: Math.round(ventas),
+        compras_directas_asignadas: Math.round(compras),
+        margen_bruto: Math.round(mb),
+        margen_bruto_pct: ventas>0?+(mb/ventas*100).toFixed(1):0,
+        nota_asignacion: compMap[p].asignacion
+      };
+    });
+  }
+
   return {
     ventas_total:Math.round(v),
     ganancia_total:Math.round(g),
@@ -1369,19 +2057,31 @@ function buildSnapshotForAI(){
     meses_parciales: mesesParciales,
     nota_meses_parciales: mesesParciales.length>0 ? 'Estos meses tienen ventas pero faltan algunos rubros de costos cargados, por lo que su ganancia/margen está inflado artificialmente. Aclaralo y excluilos de los promedios y comparativas de margen.' : null,
     por_mes:porMes,
-    costos
+    costos,
+    productos_ventas,
+    compras_categorias,
+    margen_por_linea,
+    nota_margen_por_linea: margen_por_linea ? 'PET y Bandejas comparten materia prima (PET compras), repartida proporcional a las ventas. Flexibles incluye Amcor. Otros queda sin asignar a línea de producto.' : null
   };
 }
 
 function renderSnapshot(snap){
   const el = document.getElementById('aiSnapshot');
+  let extra = '';
+  if(snap.productos_ventas){
+    extra += '<div class="stat-line"><span class="stat-label">Líneas de producto</span><span class="stat-val">'+snap.productos_ventas.length+' (PET / Flex / Bandejas)</span></div>';
+  }
+  if(snap.compras_categorias){
+    extra += '<div class="stat-line"><span class="stat-label">Categorías de compras</span><span class="stat-val">'+snap.compras_categorias.length+'</span></div>';
+  }
   el.innerHTML = `
     <div class="stat-line"><span class="stat-label">Ventas año fiscal</span><span class="stat-val">$${fmtMoneyFull(snap.ventas_total)}</span></div>
     <div class="stat-line"><span class="stat-label">Ganancia</span><span class="stat-val pos">$${fmtMoneyFull(snap.ganancia_total)}</span></div>
     <div class="stat-line"><span class="stat-label">Margen neto</span><span class="stat-val">${snap.margen_neto_pct.toFixed(1)}%</span></div>
     <div class="stat-line"><span class="stat-label">Mix Negra</span><span class="stat-val">${snap.pct_negra}%</span></div>
     <div class="stat-line"><span class="stat-label">Meses cargados</span><span class="stat-val">${snap.meses_cargados} / 12</span></div>
-    <div class="stat-line"><span class="stat-label">Rubros analizados</span><span class="stat-val">${snap.costos.length}</span></div>
+    <div class="stat-line"><span class="stat-label">Rubros de costos</span><span class="stat-val">${snap.costos.length}</span></div>
+    ${extra}
   `;
 }
 
@@ -1390,13 +2090,14 @@ async function generarAnalisisIA(){
   const out = document.getElementById('aiOutput');
   const btn = document.getElementById('aiBtn');
   const btn2 = document.getElementById('aiBtn2');
-  btn.disabled = true; if(btn2) btn2.disabled = true;
-  out.innerHTML = '<div class="ai-loading"><span class="pulse"></span><span>Analizando datos · Generando informe ejecutivo...</span></div>';
 
   const snap = buildSnapshotForAI();
   renderSnapshot(snap);
 
+  const tienePorProducto = snap.productos_ventas && snap.margen_por_linea;
   const prompt = `Sos un analista financiero experto, escribís en castellano argentino directo y profesional (vos, no usted). Analizás el flujo de fondos de Winflex S.A., una empresa industrial argentina de packaging flexible.
+
+Winflex tiene 3 líneas de producto: PET (envases), Flexibles (bolsas/láminas), Bandejas. PET y Bandejas comparten materia prima. Flexibles compra MP por separado (incluyendo a Amcor como proveedor principal).
 
 Te paso los datos del año fiscal en curso (Julio→Junio). El "Total 1" es el circuito formal/blanco, el "Total 2" es el informal/negro. Algunos meses pueden estar incompletos.
 
@@ -1416,12 +2117,15 @@ Producí un análisis ejecutivo en CASTELLANO ARGENTINO con esta estructura exac
 
 ### Estructura de costos
 [1-2 párrafos sobre cómo se compone el gasto, qué rubro pesa más, comparativa con ratios históricos]
-
+${tienePorProducto?`
+### Análisis por línea de producto
+[2 párrafos: (1) Qué línea aporta más al mix de ventas y cómo se compara con su rentabilidad. (2) Qué línea tiene mejor margen bruto y qué implica. Recordá que el reparto PET/Bandejas es proporcional a ventas — aclaralo si es relevante]
+`:''}
 ### Blanca vs Negra
-[1 párrafo sobre el mix entre circuitos y qué implicancias tiene]
+[1 párrafo sobre el mix entre circuitos. ${tienePorProducto?'Si una línea concentra más informalidad, mencionalo.':''}]
 
 ### Recomendaciones
-- [3-4 acciones concretas sugeridas, no genéricas]
+- [3-4 acciones concretas sugeridas, no genéricas${tienePorProducto?'. Al menos 1 debe ser sobre líneas de producto (cuál impulsar, cuál revisar)':''}]
 
 REGLAS:
 - Tono profesional pero directo, argentino (vos, "tenés", "viene", "es clave")
@@ -1432,23 +2136,32 @@ REGLAS:
 - Sé crítico y útil, no condescendiente`;
 
   try{
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:1500,
-        messages:[{role:"user",content:prompt}]
-      })
-    });
-    const data = await response.json();
-    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('\n');
-    out.innerHTML = renderMarkdown(text);
-    document.getElementById('aiTimestamp').textContent = 'Generado · '+new Date().toLocaleString('es-AR');
+    await navigator.clipboard.writeText(prompt);
+    out.innerHTML = `
+      <div style="font-family:'Fraunces',serif;font-size:18px;line-height:1.6;color:var(--paper)">
+        <h3 style="color:var(--mustard);font-size:22px;margin-bottom:12px">Copiado al portapapeles ✓</h3>
+        <p style="margin-bottom:14px">Listo. El prompt completo (con todos los datos del archivo) ya está en tu portapapeles.</p>
+        <p style="margin-bottom:14px"><strong>Ahora abrí Claude</strong> (claude.ai o la app) y pegalo en una conversación nueva. Te va a devolver el informe ejecutivo en argentino con la lectura general, alertas, estructura de costos, blanca vs negra y recomendaciones.</p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(245,240,230,0.7);margin-top:20px;letter-spacing:0.05em">SNAPSHOT INCLUIDO · ${snap.meses_cargados} MESES · ${(snap.ventas_total/1e9).toFixed(2)}B VENTAS · ${snap.margen_neto_pct}% MARGEN</p>
+      </div>`;
+    document.getElementById('aiTimestamp').textContent = 'Copiado · '+new Date().toLocaleString('es-AR');
+    // Feedback visual en los botones
+    const origText1 = btn.innerHTML;
+    btn.innerHTML = '<span class="dot"></span> Copiado ✓';
+    if(btn2){ var origText2 = btn2.innerHTML; btn2.innerHTML = '<span class="dot"></span> Copiado ✓ — pegalo en Claude'; }
+    setTimeout(()=>{
+      btn.innerHTML = origText1;
+      if(btn2) btn2.innerHTML = origText2;
+    }, 4000);
   }catch(e){
-    out.innerHTML = '<div style="color:var(--oxide);font-family:JetBrains Mono,monospace;font-size:13px">Error generando análisis: '+e.message+'</div>';
-  }finally{
-    btn.disabled = false; if(btn2) btn2.disabled = false;
+    // Fallback si no anda clipboard API: mostrar el prompt en un textarea para copiar manual
+    out.innerHTML = `
+      <div style="font-family:'Fraunces',serif;font-size:16px;line-height:1.55;color:var(--paper)">
+        <h3 style="color:var(--mustard);font-size:20px;margin-bottom:10px">Copiá manualmente</h3>
+        <p style="margin-bottom:12px">No pude copiar automáticamente. Seleccioná todo el texto de abajo (Ctrl+A) y copialo (Ctrl+C), después pegalo en Claude.</p>
+        <textarea id="promptFallback" readonly style="width:100%;height:240px;background:rgba(245,240,230,0.08);color:var(--paper);border:1px solid rgba(245,240,230,0.2);padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.4;resize:vertical">${prompt.replace(/</g,'&lt;')}</textarea>
+      </div>`;
+    setTimeout(()=>{const t=document.getElementById('promptFallback'); if(t){t.focus();t.select();}}, 100);
   }
 }
 
@@ -1490,54 +2203,128 @@ document.querySelectorAll('.nav-item').forEach(btn=>{
 });
 
 /* ============================================================
-   FILE LOADING
+   FILE LOADING (multi-archivo con detección automática)
    ============================================================ */
 function showError(msg){
   const el = document.getElementById('errorBanner');
   el.textContent = '⚠ '+msg;
   el.classList.remove('hidden');
+  setTimeout(()=>el.classList.add('hidden'), 8000);
 }
 
-function handleFile(file){
+const ARCHIVOS_META = { flujo:null, ventas:null, compras:null }; // metadata de archivos cargados
+
+function readFileAsArrayBuffer(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = e=>resolve(e.target.result);
+    r.onerror = ()=>reject(new Error('Error leyendo archivo'));
+    r.readAsArrayBuffer(file);
+  });
+}
+
+async function handleFiles(files){
   document.getElementById('errorBanner').classList.add('hidden');
-  const reader = new FileReader();
-  reader.onload = (e)=>{
+  // Procesar uno por uno
+  for(const file of files){
     try{
-      const wb = XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-      DATA = parseWorkbook(wb);
-      // Mostrar app
-      document.getElementById('emptyState').classList.add('hidden');
-      document.getElementById('appState').classList.remove('hidden');
-      const meta = `${file.name.toUpperCase()} · ${(file.size/1024).toFixed(0)}KB · ${new Date().toLocaleDateString('es-AR')}`;
-      document.getElementById('fileMeta').textContent = meta;
-      document.getElementById('footMeta').textContent = meta;
-      // Render todo
-      setChartDefaults();
-      renderResumen();
-      renderEvolucion();
-      renderEstructura();
-      renderByn();
-      renderEquilibrio();
-      renderDetalle();
-      renderSnapshot(buildSnapshotForAI());
+      const buf = await readFileAsArrayBuffer(file);
+      const wb = XLSX.read(new Uint8Array(buf),{type:'array'});
+      const tipo = detectarTipoArchivo(wb);
+      if(tipo==='desconocido'){
+        showError(`No pude identificar "${file.name}" — ¿es uno de los 3 archivos esperados?`);
+        continue;
+      }
+      // Parsear según tipo
+      if(tipo==='flujo'){
+        DATA = parseWorkbook(wb);
+        ARCHIVOS_META.flujo = {name:file.name, size:file.size};
+      } else if(tipo==='ventas'){
+        VENTAS_DET = parseDetalleVentas(wb);
+        ARCHIVOS_META.ventas = {name:file.name, size:file.size};
+      } else if(tipo==='compras'){
+        COMPRAS_DET = parseDetalleCompras(wb);
+        ARCHIVOS_META.compras = {name:file.name, size:file.size};
+      }
+      updateSlot(tipo, file.name);
     }catch(err){
       console.error(err);
-      showError('No pude procesar el archivo: '+err.message);
+      showError(`Error procesando "${file.name}": ${err.message}`);
     }
-  };
-  reader.onerror = ()=>showError('Error leyendo el archivo');
-  reader.readAsArrayBuffer(file);
+  }
+  // Mostrar botón continuar si al menos hay flujo
+  if(DATA){
+    document.getElementById('continuarBtn').classList.remove('hidden');
+  }
 }
 
-document.getElementById('fileInput').addEventListener('change', e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
-document.getElementById('fileInput2').addEventListener('change', e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+function updateSlot(tipo, fileName){
+  const slot = document.querySelector(`.slot[data-tipo="${tipo}"]`);
+  if(slot){
+    slot.classList.add('loaded');
+    slot.querySelector('.slot-status').textContent = '✓ '+fileName;
+  }
+}
+
+function entrarApp(){
+  if(!DATA){ showError('Falta el flujo de fondos (archivo principal)'); return; }
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('appState').classList.remove('hidden');
+  // Meta
+  const archivosCargados = [];
+  if(ARCHIVOS_META.flujo) archivosCargados.push('FLUJO');
+  if(ARCHIVOS_META.ventas) archivosCargados.push('VENTAS');
+  if(ARCHIVOS_META.compras) archivosCargados.push('COMPRAS');
+  const meta = `${archivosCargados.join(' + ')} · ${new Date().toLocaleDateString('es-AR')}`;
+  document.getElementById('fileMeta').textContent = meta;
+  document.getElementById('footMeta').textContent = meta;
+  // Mostrar/ocultar tab 08 según haya detalle
+  const tabProductos = document.getElementById('navProductos');
+  if(tabProductos){
+    if(VENTAS_DET || COMPRAS_DET) tabProductos.classList.remove('hidden');
+    else tabProductos.classList.add('hidden');
+  }
+  // Render
+  setChartDefaults();
+  renderResumen();
+  renderEvolucion();
+  renderEstructura();
+  renderByn();
+  renderEquilibrio();
+  renderDetalle();
+  if(VENTAS_DET || COMPRAS_DET) renderProductos();
+  renderSnapshot(buildSnapshotForAI());
+}
+
+document.getElementById('fileInput').addEventListener('change', e=>{ if(e.target.files.length) handleFiles(Array.from(e.target.files)); });
+document.getElementById('fileInput2').addEventListener('change', e=>{
+  if(e.target.files.length){
+    handleFiles(Array.from(e.target.files)).then(()=>{
+      // Re-renderizar con nuevos datos sin volver al empty state
+      const meta = [];
+      if(ARCHIVOS_META.flujo) meta.push('FLUJO');
+      if(ARCHIVOS_META.ventas) meta.push('VENTAS');
+      if(ARCHIVOS_META.compras) meta.push('COMPRAS');
+      document.getElementById('fileMeta').textContent = meta.join(' + ')+' · '+new Date().toLocaleDateString('es-AR');
+      document.getElementById('footMeta').textContent = meta.join(' + ')+' · '+new Date().toLocaleDateString('es-AR');
+      const tabProductos = document.getElementById('navProductos');
+      if(tabProductos){
+        if(VENTAS_DET || COMPRAS_DET) tabProductos.classList.remove('hidden');
+      }
+      renderResumen(); renderEvolucion(); renderEstructura(); renderByn();
+      renderEquilibrio(); renderDetalle();
+      if(VENTAS_DET || COMPRAS_DET) renderProductos();
+      renderSnapshot(buildSnapshotForAI());
+    });
+  }
+});
 
 const dz = document.getElementById('dropzone');
 dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag'); });
 dz.addEventListener('dragleave', ()=>dz.classList.remove('drag'));
 dz.addEventListener('drop', e=>{
   e.preventDefault(); dz.classList.remove('drag');
-  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  if(e.dataTransfer.files.length) handleFiles(Array.from(e.dataTransfer.files));
 });
 
 </script>
