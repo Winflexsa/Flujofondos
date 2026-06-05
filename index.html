@@ -17,7 +17,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flujo Winflex">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='6' y='6' width='88' height='88' rx='24' fill='%231a472a'/%3E%3Cpath d='M28 26 L28 72 L78 72' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M33 58 L45 47 L53 53 L70 33' fill='none' stroke='%23f4b740' stroke-width='3.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M62 32 L72 31 L71 41' fill='none' stroke='%23f4b740' stroke-width='3.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>
 :root{
@@ -47,9 +46,9 @@ body{min-height:100vh;background-image:radial-gradient(circle at 18% 8%, rgba(46
 
 /* ======== MASTHEAD ======== */
 .masthead{border-bottom:3px solid var(--oxide);padding:22px 40px 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px;background:var(--paper);box-shadow:var(--shadow)}
-.brand-row{display:flex;align-items:center;gap:14px}
-.brand-logo{width:46px;height:46px;flex-shrink:0;border-radius:11px;box-shadow:var(--shadow-card)}
-.brand-logo svg{display:block;width:100%;height:100%;border-radius:11px}
+.brand-row{display:flex;align-items:center;gap:16px}
+.brand-logo-img{height:48px;width:auto;display:block;flex-shrink:0}
+@media(max-width:640px){.brand-logo-img{height:38px}}
 .brand{display:flex;flex-direction:column;gap:2px}
 .brand-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute)}
 .brand-title{font-family:'Fraunces',serif;font-weight:600;font-size:38px;line-height:1;letter-spacing:-0.02em;font-variation-settings:"opsz" 144}
@@ -232,24 +231,21 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 }
 /* ======== PIN / LOGIN ======== */
 .pin-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--canvas);padding:24px;background-image:radial-gradient(circle at 50% 0%, rgba(46,158,91,0.10) 0%, transparent 55%)}
-.pin-card{width:100%;max-width:360px;background:var(--paper);border:1px solid var(--rule);border-radius:18px;box-shadow:0 12px 40px rgba(26,71,42,0.14);padding:36px 32px 30px;text-align:center}
-.pin-logo{width:88px;height:88px;margin:0 auto 18px;border-radius:22px;box-shadow:0 6px 18px rgba(26,71,42,0.22)}
-.pin-logo svg{display:block;width:100%;height:100%;border-radius:22px}
+.pin-card{width:100%;max-width:360px;background:var(--paper);border:1px solid var(--rule);border-radius:18px;box-shadow:0 12px 40px rgba(26,71,42,0.14);padding:34px 32px 28px;text-align:center}
+.pin-logo-img{display:block;width:170px;max-width:72%;height:auto;margin:4px auto 18px}
 .pin-brand{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:4px}
-.pin-title{font-family:'Fraunces',serif;font-weight:600;font-size:30px;letter-spacing:-0.02em;line-height:1.05}
+.pin-title{font-family:'Fraunces',serif;font-weight:600;font-size:28px;letter-spacing:-0.02em;line-height:1.05}
 .pin-title em{font-style:italic;font-weight:400;color:var(--oxide)}
 .pin-sub{font-size:13px;color:var(--ink-mute);margin:6px 0 22px}
-.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:22px}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--rule);background:transparent;transition:all 0.12s}
-.pin-dot.on{background:var(--oxide);border-color:var(--oxide)}
-.pin-dot.err{background:var(--oxide-deep);border-color:var(--oxide-deep)}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.pin-key{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:500;padding:16px 0;border:1px solid var(--rule);border-radius:12px;background:var(--paper-2);color:var(--ink);cursor:pointer;transition:all 0.1s;-webkit-tap-highlight-color:transparent;user-select:none}
-.pin-key:hover{background:var(--paper-3)}
-.pin-key:active{background:var(--oxide);color:#fff;border-color:var(--oxide);transform:scale(0.96)}
-.pin-key.fn{font-size:14px;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;color:var(--ink-mute)}
+.pin-input{width:100%;text-align:center;font-family:'DM Sans',sans-serif;font-size:24px;letter-spacing:0.5em;font-weight:600;color:var(--ink);padding:15px 12px;border:1.5px solid var(--rule);border-radius:12px;background:var(--paper-2);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+.pin-input::placeholder{color:var(--ink-mute);letter-spacing:0.4em;font-weight:500}
+.pin-input:focus{border-color:var(--moss);box-shadow:0 0 0 3px rgba(46,158,91,0.15)}
+.pin-input.err{border-color:var(--oxide-deep);box-shadow:0 0 0 3px rgba(178,59,46,0.15)}
+.pin-enter{width:100%;margin-top:16px;padding:15px;border:none;border-radius:12px;background:var(--moss);color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.02em;cursor:pointer;transition:background 0.15s,transform 0.08s;box-shadow:0 4px 12px rgba(46,158,91,0.28)}
+.pin-enter:hover{background:#28894f}
+.pin-enter:active{transform:scale(0.98)}
 .pin-err-msg{color:var(--oxide-deep);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;min-height:16px;margin-top:14px}
-.pin-foot{margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute)}
+.pin-foot{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute)}
 @keyframes pinshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 .pin-card.shake{animation:pinshake 0.35s}
 /* ======== CLOUD SYNC ======== */
@@ -266,38 +262,11 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 <!-- ============== PIN / LOGIN ============== -->
 <div id="pinScreen" class="pin-screen">
   <div class="pin-card" id="pinCard">
-    <div class="pin-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs><linearGradient id="pinwfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e9e5b"/><stop offset="1" stop-color="#1a472a"/></linearGradient></defs>
-        <rect x="6" y="6" width="88" height="88" rx="24" fill="url(#pinwfg)"/>
-        <path d="M28 26 L28 72 L78 72" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-        <rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#fff" opacity="0.55"/>
-        <rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#fff" opacity="0.72"/>
-        <rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#fff" opacity="0.9"/>
-        <path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div class="pin-brand">Winflex S.A.</div>
+    <img class="pin-logo-img" src="winflex-logo.png" alt="Winflex S.A. · Envases Especiales">
     <h1 class="pin-title">Flujo de <em>Fondos</em></h1>
     <div class="pin-sub">Ingresá tu PIN para continuar</div>
-    <div class="pin-dots" id="pinDots">
-      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-    </div>
-    <div class="pin-pad">
-      <button class="pin-key" onclick="pinPress('1')">1</button>
-      <button class="pin-key" onclick="pinPress('2')">2</button>
-      <button class="pin-key" onclick="pinPress('3')">3</button>
-      <button class="pin-key" onclick="pinPress('4')">4</button>
-      <button class="pin-key" onclick="pinPress('5')">5</button>
-      <button class="pin-key" onclick="pinPress('6')">6</button>
-      <button class="pin-key" onclick="pinPress('7')">7</button>
-      <button class="pin-key" onclick="pinPress('8')">8</button>
-      <button class="pin-key" onclick="pinPress('9')">9</button>
-      <button class="pin-key fn" onclick="pinClear()">Borrar</button>
-      <button class="pin-key" onclick="pinPress('0')">0</button>
-      <button class="pin-key fn" onclick="pinDel()">&larr;</button>
-    </div>
+    <input id="pinInput" class="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="• • • •">
+    <button class="pin-enter" onclick="pinSubmit()">Entrar</button>
     <div class="pin-err-msg" id="pinErr"></div>
     <div class="pin-foot">App interna &middot; Acceso restringido</div>
   </div>
@@ -307,7 +276,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 <div id="emptyState" style="display:none">
   <header class="masthead">
     <div class="brand-row">
-    <div class="brand-logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mlg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e9e5b"/><stop offset="1" stop-color="#1a472a"/></linearGradient></defs><rect x="6" y="6" width="88" height="88" rx="24" fill="url(#mlg1)"/><path d="M28 26 L28 72 L78 72" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/><rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#fff" opacity="0.55"/><rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#fff" opacity="0.72"/><rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#fff" opacity="0.9"/><path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <img class="brand-logo-img" src="winflex-logo.png" alt="Winflex S.A.">
     <div class="brand">
       <span class="brand-eyebrow">Winflex S.A. · Análisis Financiero</span>
       <h1 class="brand-title">Flujo de <em>Fondos</em></h1>
@@ -375,7 +344,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 
 <header class="masthead">
   <div class="brand-row">
-  <div class="brand-logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mlg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e9e5b"/><stop offset="1" stop-color="#1a472a"/></linearGradient></defs><rect x="6" y="6" width="88" height="88" rx="24" fill="url(#mlg2)"/><path d="M28 26 L28 72 L78 72" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/><rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#fff" opacity="0.55"/><rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#fff" opacity="0.72"/><rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#fff" opacity="0.9"/><path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <img class="brand-logo-img" src="winflex-logo.png" alt="Winflex S.A.">
   <div class="brand">
     <span class="brand-eyebrow">Winflex S.A. · Análisis de Flujo de Fondos</span>
     <h1 class="brand-title">Flujo de <em>Fondos</em></h1>
@@ -2446,33 +2415,21 @@ const PINS = {
   // '0204': 'Georgina'
 };
 let WF_USER = sessionStorage.getItem('wf_flujo_user') || '';
-let _pinBuf = '';
 
-function _pinDots(){
-  document.querySelectorAll('#pinDots .pin-dot').forEach((d,i)=>{
-    d.classList.remove('err'); d.classList.toggle('on', i < _pinBuf.length);
-  });
-}
-function pinPress(d){
-  if(_pinBuf.length>=4) return;
-  _pinBuf += d; _pinDots();
-  document.getElementById('pinErr').textContent='';
-  if(_pinBuf.length===4) setTimeout(_pinCheck, 130);
-}
-function pinDel(){ _pinBuf=_pinBuf.slice(0,-1); _pinDots(); }
-function pinClear(){ _pinBuf=''; _pinDots(); document.getElementById('pinErr').textContent=''; }
-function _pinCheck(){
-  const name = PINS[_pinBuf];
+function pinSubmit(){
+  const inp = document.getElementById('pinInput');
+  const val = (inp.value||'').trim();
+  const name = PINS[val];
   if(name){
     WF_USER = name;
     sessionStorage.setItem('wf_flujo_user', name);
+    document.getElementById('pinErr').textContent='';
     _unlock();
   } else {
     const card=document.getElementById('pinCard');
-    document.querySelectorAll('#pinDots .pin-dot').forEach(d=>{ d.classList.remove('on'); d.classList.add('err'); });
-    card.classList.add('shake');
+    inp.classList.add('err'); card.classList.add('shake');
     document.getElementById('pinErr').textContent='PIN incorrecto';
-    setTimeout(()=>{ card.classList.remove('shake'); _pinBuf=''; _pinDots(); }, 620);
+    setTimeout(()=>{ card.classList.remove('shake'); inp.classList.remove('err'); inp.value=''; inp.focus(); }, 620);
   }
 }
 function _unlock(){
@@ -2480,13 +2437,13 @@ function _unlock(){
   document.getElementById('emptyState').style.display='';
   checkCloud();
 }
-document.addEventListener('keydown', e=>{
-  const ps=document.getElementById('pinScreen');
-  if(!ps || ps.style.display==='none') return;
-  if(e.key>='0' && e.key<='9') pinPress(e.key);
-  else if(e.key==='Backspace'){ e.preventDefault(); pinDel(); }
-  else if(e.key==='Enter' && _pinBuf.length===4) _pinCheck();
-});
+// Enter envía; solo dígitos en el input
+(function(){
+  const inp=document.getElementById('pinInput');
+  if(!inp) return;
+  inp.addEventListener('input', ()=>{ inp.value = inp.value.replace(/\D/g,'').slice(0,4); document.getElementById('pinErr').textContent=''; });
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') pinSubmit(); });
+})();
 
 /* ─────────── Sincronización en la nube (JSONBin) ───────────
    Misma master key compartida que el resto de las apps Winflex.
@@ -2652,7 +2609,8 @@ function _pinsHasUser(name){ return name && Object.values(PINS).includes(name); 
     document.getElementById('emptyState').style.display='';
     checkCloud();
   } else {
-    _pinBuf=''; _pinDots();
+    const inp=document.getElementById('pinInput');
+    if(inp) setTimeout(()=>inp.focus(), 100);
   }
 })();
 
