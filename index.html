@@ -9,28 +9,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- ===== PWA / instalable en tablet ===== -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1a472a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flujo Winflex">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='6' y='6' width='88' height='88' rx='24' fill='%231a472a'/%3E%3Cpath d='M28 26 L28 72 L78 72' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M33 58 L45 47 L53 53 L70 33' fill='none' stroke='%23f4b740' stroke-width='3.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M62 32 L72 31 L71 41' fill='none' stroke='%23f4b740' stroke-width='3.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="icon-192.png">
 <style>
 :root{
-  --ink:#1a1612;
-  --ink-soft:#3d3530;
-  --ink-mute:#7a6f66;
-  --paper:#f5f0e6;
-  --paper-2:#ede5d4;
-  --paper-3:#e3d8c0;
-  --rule:#d6c9ad;
-  --oxide:#b8472a;
-  --oxide-deep:#8a3520;
-  --moss:#3d5a3d;
-  --moss-deep:#2a4029;
-  --mustard:#b8893a;
-  --shadow: 0 1px 0 rgba(26,22,18,0.08);
+  /* ====== Paleta Winflex ====== */
+  --ink:#1a1916;          /* texto principal */
+  --ink-soft:#44413b;     /* texto secundario */
+  --ink-mute:#8a857b;     /* texto tenue / labels */
+  --canvas:#f1f0ec;       /* fondo de página */
+  --paper:#ffffff;        /* superficie de tarjetas */
+  --paper-2:#f7f6f2;      /* fills suaves (dropzone, chips) */
+  --paper-3:#ecebe4;      /* hover / drag */
+  --rule:#e3e1d8;         /* líneas / bordes */
+  --oxide:#1a472a;        /* VERDE WINFLEX — acento de marca */
+  --oxide-deep:#b23b2e;   /* ROJO — pérdidas / negativos / alertas */
+  --brand-2:#2e9e5b;      /* verde claro de marca */
+  --brand-deep:#123019;   /* verde más oscuro (hover) */
+  --moss:#2e9e5b;         /* verde de ganancia */
+  --moss-deep:#15803d;    /* verde de ganancia (texto) */
+  --mustard:#b8893a;      /* dorado (serie ventas / detalles) */
+  --gold:#d9a441;         /* dorado claro */
+  --shadow:0 1px 2px rgba(26,25,22,0.06), 0 1px 0 rgba(26,25,22,0.04);
+  --shadow-card:0 1px 3px rgba(26,25,22,0.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;background-image:radial-gradient(circle at 20% 10%, rgba(184,71,42,0.04) 0%, transparent 50%),radial-gradient(circle at 80% 80%, rgba(61,90,61,0.04) 0%, transparent 50%)}
+html,body{background:var(--canvas);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;background-image:radial-gradient(circle at 18% 8%, rgba(46,158,91,0.05) 0%, transparent 48%),radial-gradient(circle at 84% 86%, rgba(26,71,42,0.045) 0%, transparent 52%)}
 
 /* ======== MASTHEAD ======== */
-.masthead{border-bottom:2px solid var(--ink);padding:24px 40px 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px;background:var(--paper)}
+.masthead{border-bottom:3px solid var(--oxide);padding:22px 40px 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px;background:var(--paper);box-shadow:var(--shadow)}
+.brand-row{display:flex;align-items:center;gap:14px}
+.brand-logo{width:46px;height:46px;flex-shrink:0;border-radius:11px;box-shadow:var(--shadow-card)}
+.brand-logo svg{display:block;width:100%;height:100%;border-radius:11px}
 .brand{display:flex;flex-direction:column;gap:2px}
 .brand-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute)}
 .brand-title{font-family:'Fraunces',serif;font-weight:600;font-size:38px;line-height:1;letter-spacing:-0.02em;font-variation-settings:"opsz" 144}
@@ -42,7 +61,7 @@ body{min-height:100vh;background-image:radial-gradient(circle at 20% 10%, rgba(1
 .btn.primary{background:var(--ink);color:var(--paper)}
 .btn.primary:hover{background:var(--oxide);border-color:var(--oxide)}
 .btn.accent{background:var(--oxide);color:var(--paper);border-color:var(--oxide)}
-.btn.accent:hover{background:var(--oxide-deep);border-color:var(--oxide-deep)}
+.btn.accent:hover{background:var(--brand-deep);border-color:var(--brand-deep)}
 .btn:disabled{opacity:0.45;cursor:not-allowed}
 .btn .dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
 
@@ -99,7 +118,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 .section-sub{color:var(--ink-mute);font-size:14px;margin-top:8px;max-width:560px}
 
 /* ======== KPI GRID ======== */
-.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:32px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:32px;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-card)}
 .kpi{background:var(--paper);padding:28px 24px;display:flex;flex-direction:column;gap:6px;position:relative}
 .kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute)}
 .kpi-value{font-family:'Fraunces',serif;font-weight:500;font-size:48px;line-height:1.05;letter-spacing:-0.02em;color:var(--ink);font-variation-settings:"opsz" 144}
@@ -116,7 +135,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 .kpi-grid.cols-2{grid-template-columns:repeat(2,1fr)}
 
 /* ======== CARDS ======== */
-.card{background:var(--paper);border:1px solid var(--rule);padding:24px;margin-bottom:24px}
+.card{background:var(--paper);border:1px solid var(--rule);padding:24px;margin-bottom:24px;box-shadow:var(--shadow-card);border-radius:8px}
 .card-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--rule);padding-bottom:12px}
 .card-title{font-family:'Fraunces',serif;font-weight:500;font-size:22px;letter-spacing:-0.01em;font-variation-settings:"opsz" 96}
 .card-title em{font-style:italic;color:var(--oxide)}
@@ -211,20 +230,100 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
   .kpi-value{font-size:36px}
   .footer{padding:20px}
 }
+/* ======== PIN / LOGIN ======== */
+.pin-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--canvas);padding:24px;background-image:radial-gradient(circle at 50% 0%, rgba(46,158,91,0.10) 0%, transparent 55%)}
+.pin-card{width:100%;max-width:360px;background:var(--paper);border:1px solid var(--rule);border-radius:18px;box-shadow:0 12px 40px rgba(26,71,42,0.14);padding:36px 32px 30px;text-align:center}
+.pin-logo{width:88px;height:88px;margin:0 auto 18px;border-radius:22px;box-shadow:0 6px 18px rgba(26,71,42,0.22)}
+.pin-logo svg{display:block;width:100%;height:100%;border-radius:22px}
+.pin-brand{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:4px}
+.pin-title{font-family:'Fraunces',serif;font-weight:600;font-size:30px;letter-spacing:-0.02em;line-height:1.05}
+.pin-title em{font-style:italic;font-weight:400;color:var(--oxide)}
+.pin-sub{font-size:13px;color:var(--ink-mute);margin:6px 0 22px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:22px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--rule);background:transparent;transition:all 0.12s}
+.pin-dot.on{background:var(--oxide);border-color:var(--oxide)}
+.pin-dot.err{background:var(--oxide-deep);border-color:var(--oxide-deep)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pin-key{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:500;padding:16px 0;border:1px solid var(--rule);border-radius:12px;background:var(--paper-2);color:var(--ink);cursor:pointer;transition:all 0.1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.pin-key:hover{background:var(--paper-3)}
+.pin-key:active{background:var(--oxide);color:#fff;border-color:var(--oxide);transform:scale(0.96)}
+.pin-key.fn{font-size:14px;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;color:var(--ink-mute)}
+.pin-err-msg{color:var(--oxide-deep);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;min-height:16px;margin-top:14px}
+.pin-foot{margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute)}
+@keyframes pinshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.pin-card.shake{animation:pinshake 0.35s}
+/* ======== CLOUD SYNC ======== */
+.cloud-banner{display:flex;align-items:center;gap:16px;max-width:640px;width:100%;margin:0 auto 22px;padding:16px 20px;background:linear-gradient(180deg,#f0f9f3,#e8f4ec);border:1px solid #bfe3cd;border-left:4px solid var(--moss);border-radius:10px;box-shadow:var(--shadow-card)}
+.cloud-ico{font-size:26px;line-height:1;flex-shrink:0}
+.cloud-txt{flex:1;text-align:left}
+.cloud-title{font-weight:600;font-size:15px;color:var(--oxide)}
+.cloud-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);margin-top:3px;letter-spacing:0.02em}
+#syncBtn .dot,#syncBtnTxt{pointer-events:none}
 </style>
 </head>
 <body>
 
+<!-- ============== PIN / LOGIN ============== -->
+<div id="pinScreen" class="pin-screen">
+  <div class="pin-card" id="pinCard">
+    <div class="pin-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="pinwfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e9e5b"/><stop offset="1" stop-color="#1a472a"/></linearGradient></defs>
+        <rect x="6" y="6" width="88" height="88" rx="24" fill="url(#pinwfg)"/>
+        <path d="M28 26 L28 72 L78 72" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+        <rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#fff" opacity="0.55"/>
+        <rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#fff" opacity="0.72"/>
+        <rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#fff" opacity="0.9"/>
+        <path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="pin-brand">Winflex S.A.</div>
+    <h1 class="pin-title">Flujo de <em>Fondos</em></h1>
+    <div class="pin-sub">Ingresá tu PIN para continuar</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key fn" onclick="pinClear()">Borrar</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key fn" onclick="pinDel()">&larr;</button>
+    </div>
+    <div class="pin-err-msg" id="pinErr"></div>
+    <div class="pin-foot">App interna &middot; Acceso restringido</div>
+  </div>
+</div>
+
 <!-- ============== EMPTY STATE ============== -->
-<div id="emptyState">
+<div id="emptyState" style="display:none">
   <header class="masthead">
+    <div class="brand-row">
+    <div class="brand-logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mlg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e9e5b"/><stop offset="1" stop-color="#1a472a"/></linearGradient></defs><rect x="6" y="6" width="88" height="88" rx="24" fill="url(#mlg1)"/><path d="M28 26 L28 72 L78 72" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/><rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#fff" opacity="0.55"/><rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#fff" opacity="0.72"/><rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#fff" opacity="0.9"/><path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="brand">
       <span class="brand-eyebrow">Winflex S.A. · Análisis Financiero</span>
       <h1 class="brand-title">Flujo de <em>Fondos</em></h1>
       <span class="brand-meta">EJ JUL→JUN · 3 ARCHIVOS · CONTROL CRUZADO</span>
     </div>
+    </div>
   </header>
   <div class="empty">
+    <div class="cloud-banner" id="cloudBanner" style="display:none">
+      <div class="cloud-ico">☁</div>
+      <div class="cloud-txt">
+        <div class="cloud-title">Hay un análisis sincronizado</div>
+        <div class="cloud-meta" id="cloudMeta">—</div>
+      </div>
+      <button class="btn accent" onclick="syncLoad()"><span class="dot"></span> Ver análisis</button>
+    </div>
     <div class="dropzone" id="dropzone">
       <div class="dropzone-eyebrow">— Subir archivos mensuales</div>
       <h2 class="dropzone-title">Arrastrá tus <em>3 archivos</em><br>o seleccionalos uno por uno</h2>
@@ -265,7 +364,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
         <span class="dot"></span> Continuar al análisis
       </button>
 
-      <div class="dropzone-hint">XLSX · XLSM · XLS &nbsp;·&nbsp; Todo se procesa local en tu navegador</div>
+      <div class="dropzone-hint">XLSX · XLSM · XLS &nbsp;·&nbsp; Se procesa local · <a href="#" onclick="syncConfig();return false" style="color:var(--oxide);text-decoration:none;border-bottom:1px dotted var(--oxide)">⚙ Sincronización</a></div>
       <div id="errorBanner" class="error-banner hidden"></div>
     </div>
   </div>
@@ -275,16 +374,22 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 <div id="appState" class="hidden">
 
 <header class="masthead">
+  <div class="brand-row">
+  <div class="brand-logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mlg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e9e5b"/><stop offset="1" stop-color="#1a472a"/></linearGradient></defs><rect x="6" y="6" width="88" height="88" rx="24" fill="url(#mlg2)"/><path d="M28 26 L28 72 L78 72" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/><rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#fff" opacity="0.55"/><rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#fff" opacity="0.72"/><rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#fff" opacity="0.9"/><path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   <div class="brand">
     <span class="brand-eyebrow">Winflex S.A. · Análisis de Flujo de Fondos</span>
     <h1 class="brand-title">Flujo de <em>Fondos</em></h1>
     <span class="brand-meta" id="fileMeta">—</span>
+  </div>
   </div>
   <div class="actions">
     <button class="btn" onclick="document.getElementById('fileInput2').click()">
       Cambiar archivo
     </button>
     <input type="file" id="fileInput2" accept=".xlsx,.xlsm,.xls" multiple style="display:none">
+    <button class="btn" id="syncBtn" onclick="syncPush()" title="Guardar este análisis en la nube para verlo en la tablet">
+      <span class="dot"></span> <span id="syncBtnTxt">Sincronizar</span>
+    </button>
     <button class="btn accent" id="aiBtn" onclick="generarAnalisisIA()">
       <span class="dot"></span> Copiar para IA
     </button>
@@ -1206,11 +1311,11 @@ function setChartDefaults(){
 }
 
 const COLORS = {
-  ink:'#1a1612', oxide:'#b8472a', oxideDeep:'#8a3520', moss:'#3d5a3d', mossDeep:'#2a4029',
-  mustard:'#b8893a', paper:'#f5f0e6', paper2:'#ede5d4', mute:'#7a6f66', rule:'#d6c9ad'
+  ink:'#1a1916', oxide:'#1a472a', oxideDeep:'#b23b2e', moss:'#2e9e5b', mossDeep:'#15803d',
+  mustard:'#b8893a', paper:'#ffffff', paper2:'#f7f6f2', mute:'#8a857b', rule:'#e3e1d8'
 };
 
-const CAT_COLORS = ['#b8472a','#8a3520','#b8893a','#3d5a3d','#7a6f66','#2a4029','#d09a4f','#5a4a3d'];
+const CAT_COLORS = ['#1a472a','#2e9e5b','#b8893a','#3a7ca5','#6b8f3a','#a8553a','#5b6b7a','#7c5e9e'];
 
 function destroyChart(id){
   if(CHARTS[id]){ CHARTS[id].destroy(); delete CHARTS[id]; }
@@ -2326,6 +2431,230 @@ dz.addEventListener('drop', e=>{
   e.preventDefault(); dz.classList.remove('drag');
   if(e.dataTransfer.files.length) handleFiles(Array.from(e.dataTransfer.files));
 });
+
+/* ════════════════════════════════════════════════════════════
+   PIN · SINCRONIZACIÓN (JSONBin) · PWA   —  Winflex Flujo de Fondos
+   ════════════════════════════════════════════════════════════ */
+
+/* ─────────── PIN de acceso ───────────
+   App con datos financieros sensibles → acceso restringido.
+   Para sumar usuarios, agregá líneas al objeto (PIN: 'Nombre'). */
+const PINS = {
+  '1540': 'Matías'
+  // '0104': 'Mirta',
+  // '3080': 'Jonathan',
+  // '0204': 'Georgina'
+};
+let WF_USER = sessionStorage.getItem('wf_flujo_user') || '';
+let _pinBuf = '';
+
+function _pinDots(){
+  document.querySelectorAll('#pinDots .pin-dot').forEach((d,i)=>{
+    d.classList.remove('err'); d.classList.toggle('on', i < _pinBuf.length);
+  });
+}
+function pinPress(d){
+  if(_pinBuf.length>=4) return;
+  _pinBuf += d; _pinDots();
+  document.getElementById('pinErr').textContent='';
+  if(_pinBuf.length===4) setTimeout(_pinCheck, 130);
+}
+function pinDel(){ _pinBuf=_pinBuf.slice(0,-1); _pinDots(); }
+function pinClear(){ _pinBuf=''; _pinDots(); document.getElementById('pinErr').textContent=''; }
+function _pinCheck(){
+  const name = PINS[_pinBuf];
+  if(name){
+    WF_USER = name;
+    sessionStorage.setItem('wf_flujo_user', name);
+    _unlock();
+  } else {
+    const card=document.getElementById('pinCard');
+    document.querySelectorAll('#pinDots .pin-dot').forEach(d=>{ d.classList.remove('on'); d.classList.add('err'); });
+    card.classList.add('shake');
+    document.getElementById('pinErr').textContent='PIN incorrecto';
+    setTimeout(()=>{ card.classList.remove('shake'); _pinBuf=''; _pinDots(); }, 620);
+  }
+}
+function _unlock(){
+  document.getElementById('pinScreen').style.display='none';
+  document.getElementById('emptyState').style.display='';
+  checkCloud();
+}
+document.addEventListener('keydown', e=>{
+  const ps=document.getElementById('pinScreen');
+  if(!ps || ps.style.display==='none') return;
+  if(e.key>='0' && e.key<='9') pinPress(e.key);
+  else if(e.key==='Backspace'){ e.preventDefault(); pinDel(); }
+  else if(e.key==='Enter' && _pinBuf.length===4) _pinCheck();
+});
+
+/* ─────────── Sincronización en la nube (JSONBin) ───────────
+   Misma master key compartida que el resto de las apps Winflex.
+   El bin es propio de esta app (se crea solo la 1ra vez y se guarda
+   el ID en localStorage). Pegá ese ID en la tablet para compartir. */
+const WF_MASTER_KEY = '$2a$10$8p4t41BnTv.9Ls.4kFLhouDMqJGQEd5LQlBYEz8n1y6nH/3dFq27G';
+const JSONBIN_BASE  = 'https://api.jsonbin.io/v3/b';
+let WF_BIN = localStorage.getItem('wf_flujo_binid') || '';
+
+function _sh(write){
+  const h = {'Content-Type':'application/json','X-Master-Key':WF_MASTER_KEY,'X-Access-Key':WF_MASTER_KEY};
+  if(write) h['X-Bin-Versioning']='false';
+  return h;
+}
+function _syncStatus(msg){ const b=document.getElementById('syncBtnTxt'); if(b) b.textContent=msg; }
+
+function _payload(){
+  return {
+    app:'flujofondos', v:1,
+    savedAt: new Date().toISOString(),
+    by: WF_USER || '',
+    archivos: { flujo:ARCHIVOS_META.flujo, ventas:ARCHIVOS_META.ventas, compras:ARCHIVOS_META.compras },
+    fijoPct: FIJO_PCT,
+    data: DATA, ventasDet: VENTAS_DET, comprasDet: COMPRAS_DET
+  };
+}
+
+async function _createBin(initial){
+  const r = await fetch(JSONBIN_BASE, {
+    method:'POST',
+    headers:{ ..._sh(true), 'X-Bin-Name':'Winflex-Flujofondos', 'X-Bin-Private':'true' },
+    body: JSON.stringify(initial)
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d = await r.json();
+  WF_BIN = d.metadata.id;
+  localStorage.setItem('wf_flujo_binid', WF_BIN);
+  return WF_BIN;
+}
+
+async function syncPush(){
+  if(!DATA){ alert('Cargá primero el flujo de fondos antes de sincronizar.'); return; }
+  const btn=document.getElementById('syncBtn'); if(btn) btn.disabled=true;
+  _syncStatus('Sincronizando…');
+  try{
+    const pl = _payload();
+    if(!WF_BIN){
+      await _createBin(pl);
+      _syncStatus('✓ Bin creado');
+      prompt('✅ Sincronización creada.\n\nPegá este ID en la otra PC o en la tablet (⚙ Sincronización) para que vean el mismo análisis:', WF_BIN);
+    } else {
+      const r = await fetch(JSONBIN_BASE+'/'+WF_BIN, {method:'PUT', headers:_sh(true), body: JSON.stringify(pl)});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      _syncStatus('✓ Sincronizado');
+    }
+    setTimeout(()=>_syncStatus('Sincronizar'), 2600);
+  }catch(e){
+    _syncStatus('✕ Error');
+    alert('No se pudo sincronizar: '+e.message+'\n\nRevisá la conexión o el ID en ⚙ Sincronización.');
+    setTimeout(()=>_syncStatus('Sincronizar'), 2600);
+  }finally{ if(btn) btn.disabled=false; }
+}
+
+async function _fetchCloud(){
+  if(!WF_BIN) return null;
+  const r = await fetch(JSONBIN_BASE+'/'+WF_BIN+'/latest', {headers:_sh(false)});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d = await r.json();
+  return (d.record && d.record.data) ? d.record : null;
+}
+
+function _archivosLabel(arch){
+  if(!arch) return '';
+  return Object.keys(arch).filter(k=>arch[k]).map(k=>k.toUpperCase()).join(' + ');
+}
+
+async function checkCloud(){
+  const banner = document.getElementById('cloudBanner');
+  if(!banner) return;
+  if(!WF_BIN){ banner.style.display='none'; return; }
+  try{
+    const rec = await _fetchCloud();
+    if(rec && rec.data){
+      const f = _archivosLabel(rec.archivos);
+      const when = rec.savedAt ? new Date(rec.savedAt).toLocaleString('es-AR') : '';
+      document.getElementById('cloudMeta').textContent = (f?f+' · ':'') + (rec.by?'por '+rec.by+' · ':'') + when;
+      banner.style.display='flex';
+    } else { banner.style.display='none'; }
+  }catch(e){ banner.style.display='none'; }
+}
+
+async function syncLoad(){
+  try{
+    const rec = await _fetchCloud();
+    if(!rec || !rec.data){ alert('No hay un análisis sincronizado todavía.'); return; }
+    DATA       = rec.data;
+    VENTAS_DET = rec.ventasDet || null;
+    COMPRAS_DET= rec.comprasDet || null;
+    if(rec.fijoPct) FIJO_PCT = {...FIJO_DEFAULT, ...rec.fijoPct};
+    if(rec.archivos){
+      ARCHIVOS_META.flujo  = rec.archivos.flujo  || null;
+      ARCHIVOS_META.ventas = rec.archivos.ventas || null;
+      ARCHIVOS_META.compras= rec.archivos.compras|| null;
+    }
+    const f = _archivosLabel(ARCHIVOS_META);
+    const when = rec.savedAt ? new Date(rec.savedAt).toLocaleDateString('es-AR') : '';
+    _renderDashboard((f?f+' · ':'') + '☁ ' + when + (rec.by?' · '+rec.by:''));
+  }catch(e){ alert('No se pudo cargar el análisis sincronizado: '+e.message); }
+}
+
+function _renderDashboard(metaStr){
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('appState').classList.remove('hidden');
+  document.getElementById('fileMeta').textContent = metaStr;
+  document.getElementById('footMeta').textContent = metaStr;
+  const tabProductos = document.getElementById('navProductos');
+  if(tabProductos){
+    if(VENTAS_DET || COMPRAS_DET) tabProductos.classList.remove('hidden');
+    else tabProductos.classList.add('hidden');
+  }
+  setChartDefaults();
+  renderResumen(); renderEvolucion(); renderEstructura(); renderByn();
+  renderEquilibrio(); renderDetalle();
+  if(VENTAS_DET || COMPRAS_DET) renderProductos();
+  renderSnapshot(buildSnapshotForAI());
+}
+
+function syncConfig(){
+  if(WF_BIN){
+    const v = prompt(
+      'Sincronización en la nube (JSONBin)\n\n'+
+      'ID actual de este equipo:\n'+WF_BIN+'\n\n'+
+      'Pegá este mismo ID en la otra PC / tablet para compartir datos.\n\n'+
+      'Para usar otro ID, escribilo. Para borrar la config local, escribí: BORRAR',
+      WF_BIN
+    );
+    if(v===null) return;
+    if(v.trim().toUpperCase()==='BORRAR'){ localStorage.removeItem('wf_flujo_binid'); WF_BIN=''; alert('Config de sincronización borrada en este equipo.'); checkCloud(); return; }
+    if(v.trim()){ WF_BIN=v.trim(); localStorage.setItem('wf_flujo_binid', WF_BIN); checkCloud(); alert('ID actualizado.'); }
+  } else {
+    const v = prompt(
+      'Sincronización en la nube (JSONBin)\n\n'+
+      'Todavía no hay sincronización en este equipo.\n\n'+
+      '• Si YA creaste el bin en otra PC, pegá su ID acá.\n'+
+      '• Si NO, dejá vacío: se crea solo al apretar "Sincronizar" en el análisis.',
+      ''
+    );
+    if(v && v.trim()){ WF_BIN=v.trim(); localStorage.setItem('wf_flujo_binid', WF_BIN); checkCloud(); alert('ID guardado. Apretá "Ver análisis" si ya hay datos.'); }
+  }
+}
+
+/* ─────────── PWA / Service Worker ─────────── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+
+/* ─────────── Init ─────────── */
+function _pinsHasUser(name){ return name && Object.values(PINS).includes(name); }
+(function initFlujo(){
+  if(_pinsHasUser(WF_USER)){
+    document.getElementById('pinScreen').style.display='none';
+    document.getElementById('emptyState').style.display='';
+    checkCloud();
+  } else {
+    _pinBuf=''; _pinDots();
+  }
+})();
 
 </script>
 </body>

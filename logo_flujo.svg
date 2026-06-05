@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="wfg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e9e5b"/>
+      <stop offset="1" stop-color="#1a472a"/>
+    </linearGradient>
+  </defs>
+  <!-- squircle base, mismo formato que las otras apps (rx 24) -->
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="url(#wfg)"/>
+  <!-- ejes -->
+  <path d="M28 26 L28 72 L78 72" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+  <!-- barras ascendentes -->
+  <rect x="35" y="56" width="7.5" height="13" rx="1.6" fill="#ffffff" opacity="0.55"/>
+  <rect x="46.5" y="48" width="7.5" height="21" rx="1.6" fill="#ffffff" opacity="0.72"/>
+  <rect x="58" y="40" width="7.5" height="29" rx="1.6" fill="#ffffff" opacity="0.9"/>
+  <!-- flecha dorada en ascenso (zigzag, como la referencia) -->
+  <path d="M33 58 L45 47 L53 53 L70 33" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M62 32 L72 31 L71 41" fill="none" stroke="#f4b740" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- brillo sutil arriba -->
+  <rect x="6" y="6" width="88" height="40" rx="24" fill="#ffffff" opacity="0.05"/>
+</svg>
