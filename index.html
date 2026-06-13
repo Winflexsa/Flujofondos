@@ -97,6 +97,7 @@ body{min-height:100vh;background-image:radial-gradient(circle at 18% 8%, rgba(46
 
 /* ======== NAV ======== */
 .nav{border-bottom:1px solid var(--rule);background:var(--paper);position:sticky;top:0;z-index:20;padding:0 40px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+body.modo-modulo .nav{display:none}
 .nav::-webkit-scrollbar{display:none}
 .nav-item{font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;padding:18px 22px;border:none;background:transparent;color:var(--ink-mute);cursor:pointer;letter-spacing:0.01em;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s}
 .nav-item:hover{color:var(--ink)}
@@ -2265,15 +2266,43 @@ function renderMarkdown(t){
 /* ============================================================
    TABS
    ============================================================ */
+// ── NAVEGACIÓN POR VENTANAS (mismo sistema que Sueldos/Horas) ──────
+const MODULOS={resumen:'01 · Resumen ejecutivo',evolucion:'02 · Evolución mensual',estructura:'03 · Estructura de costos',byn:'04 · Blanca vs Negra',equilibrio:'05 · Punto de equilibrio',detalle:'06 · Detalle mensual',productos:'07 · Por producto',ia:'08 · Conclusiones IA'};
+const _paramTab=(function(){try{return new URLSearchParams(location.search).get('tab');}catch(_){return null;}})();
+const MODULO_VENTANA=(_paramTab&&MODULOS[_paramTab])?_paramTab:null;
+const ES_HIJA=!!MODULO_VENTANA;
+function navegarA(tab){
+  if(!MODULOS[tab])return;
+  if(document.body.classList.contains('modo-modulo')&&tab!==MODULO_VENTANA){document.body.classList.remove('modo-modulo');}
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const sec=document.getElementById('sec-'+tab); if(sec)sec.classList.add('active');
+  setTimeout(()=>Object.values(CHARTS).forEach(c=>{try{c.resize()}catch(_){}}),60);
+}
+function abrirModulo(tab){
+  if(!MODULOS[tab])return;
+  if(ES_HIJA&&tab===MODULO_VENTANA)return;
+  try{
+    const aw=(window.screen&&screen.availWidth)||1280,ah=(window.screen&&screen.availHeight)||800;
+    const ww=Math.min(1280,Math.round(aw*0.88)),wh=Math.min(900,Math.round(ah*0.92));
+    const idx=Object.keys(MODULOS).indexOf(tab),off=(idx%6)*28;
+    const left=Math.max(0,Math.round((aw-ww)/2)+off-70),top=Math.max(0,Math.round((ah-wh)/2)+off-40);
+    const feats=`popup=yes,toolbar=no,location=no,menubar=no,status=no,resizable=yes,scrollbars=yes,width=${ww},height=${wh},left=${left},top=${top}`;
+    const w=window.open('./index.html?tab='+encodeURIComponent(tab),'winflexff_'+tab,feats);
+    if(w){try{w.focus();}catch(_){ } return;}
+  }catch(_){}
+  navegarA(tab);
+}
+// Ventana dedicada a un módulo: oculta la barra y auto-trae el análisis de la nube.
+function _aplicarVentanaModulo(){
+  if(!ES_HIJA)return;
+  document.body.classList.add('modo-modulo');
+  try{document.title=(MODULOS[MODULO_VENTANA]||'')+' · Flujo de Fondos';}catch(e){}
+  navegarA(MODULO_VENTANA);
+  if(WF_BIN){ try{ syncLoad(true).then(()=>navegarA(MODULO_VENTANA)).catch(()=>{}); }catch(_){ } }
+}
 document.querySelectorAll('.nav-item').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('sec-'+btn.dataset.tab).classList.add('active');
-    // Re-resize charts
-    setTimeout(()=>Object.values(CHARTS).forEach(c=>c.resize()),50);
-  });
+  btn.addEventListener('click',()=>abrirModulo(btn.dataset.tab));
 });
 
 /* ============================================================
@@ -2436,6 +2465,7 @@ function _unlock(){
   document.getElementById('pinScreen').style.display='none';
   document.getElementById('emptyState').style.display='';
   checkCloud();
+  _aplicarVentanaModulo();
 }
 // Enter envía; solo dígitos en el input
 (function(){
@@ -2535,10 +2565,10 @@ async function checkCloud(){
   }catch(e){ banner.style.display='none'; }
 }
 
-async function syncLoad(){
+async function syncLoad(silent){
   try{
     const rec = await _fetchCloud();
-    if(!rec || !rec.data){ alert('No hay un análisis sincronizado todavía.'); return; }
+    if(!rec || !rec.data){ if(!silent) alert('No hay un análisis sincronizado todavía.'); return; }
     DATA       = rec.data;
     VENTAS_DET = rec.ventasDet || null;
     COMPRAS_DET= rec.comprasDet || null;
@@ -2551,7 +2581,7 @@ async function syncLoad(){
     const f = _archivosLabel(ARCHIVOS_META);
     const when = rec.savedAt ? new Date(rec.savedAt).toLocaleDateString('es-AR') : '';
     _renderDashboard((f?f+' · ':'') + '☁ ' + when + (rec.by?' · '+rec.by:''));
-  }catch(e){ alert('No se pudo cargar el análisis sincronizado: '+e.message); }
+  }catch(e){ if(!silent) alert('No se pudo cargar el análisis sincronizado: '+e.message); }
 }
 
 function _renderDashboard(metaStr){
@@ -2608,6 +2638,7 @@ function _pinsHasUser(name){ return name && Object.values(PINS).includes(name); 
     document.getElementById('pinScreen').style.display='none';
     document.getElementById('emptyState').style.display='';
     checkCloud();
+    _aplicarVentanaModulo();
   } else {
     const inp=document.getElementById('pinInput');
     if(inp) setTimeout(()=>inp.focus(), 100);
