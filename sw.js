@@ -1,7 +1,7 @@
 /* Winflex · Flujo de Fondos — Service Worker
    Cachea el "shell" de la app para que abra offline en la tablet.
    Nunca cachea api.jsonbin.io (los datos van siempre frescos). */
-const CACHE = 'wf-flujo-v6';
+const CACHE = 'wf-flujo-v7';
 
 const ASSETS = [
   './',
