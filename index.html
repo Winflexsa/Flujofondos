@@ -6,7 +6,7 @@
 <title>Winflex · Flujo de Fondos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link data-x href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
@@ -292,6 +292,90 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 .cloud-title{font-weight:600;font-size:15px;color:var(--oxide)}
 .cloud-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);margin-top:3px;letter-spacing:0.02em}
 #syncBtn .dot,#syncBtnTxt{pointer-events:none}
+
+/* ══════════ ESTILO WINFLEX (igual que Laminado y Refilado) ══════════ */
+:root{
+  --ink:#2f3634; --ink-soft:#4b5550; --ink-mute:#6f7a74; --canvas:#f3f6f3; --paper:#ffffff; --paper-2:#f6faf7; --paper-3:#e8f4ec;
+  --rule:#dfe6e0; --oxide:#0a6b3a; --oxide-deep:#a3271f; --brand-2:#1e9a4f; --brand-deep:#08552e; --moss:#1e9a4f; --moss-deep:#0a6b3a;
+  --mustard:#b45f06; --gold:#d9a441; --brand3:#2ebb62;
+  --r:14px; --shadow-card:0 1px 2px rgba(20,40,30,.05),0 6px 20px rgba(20,40,30,.06); --shadow:var(--shadow-card);
+}
+html,body{font:15px/1.45 "Segoe UI",Roboto,Inter,system-ui,-apple-system,sans-serif;background:var(--canvas);color:var(--ink)}
+body{background-image:none}
+/* encabezado verde fijo */
+.masthead{background:linear-gradient(90deg,var(--brand3),var(--oxide));color:#fff;border:0;padding:10px 18px;align-items:center;gap:14px;position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(0,60,30,.18)}
+.masthead .brand-row{gap:14px;align-items:center}
+.masthead .brand-logo-img{height:36px;background:#fff;border-radius:8px;padding:3px 7px}
+.masthead .brand{gap:0}
+.masthead .brand-eyebrow{display:none}
+.masthead .brand-title{font:600 17px/1.2 inherit;font-family:inherit;color:#fff;letter-spacing:.2px}
+.masthead .brand-title em{font-style:normal;color:#fff}
+.masthead .brand-meta{font-family:inherit;font-size:12.5px;color:rgba(255,255,255,.85);margin:0;letter-spacing:0}
+.masthead .actions{margin-left:auto;gap:8px}
+.masthead .btn{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.25);padding:7px 12px;border-radius:8px;font-size:14px}
+.masthead .btn:hover{background:rgba(255,255,255,.28);color:#fff}
+.masthead .btn .dot{display:none}
+/* pestañas tipo píldora */
+.nav{position:static;max-width:1480px;margin:16px auto 0;padding:6px;gap:6px;background:#fff;border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow-card);flex-wrap:wrap;width:calc(100% - 32px)}
+.nav-item{font-family:inherit;font-weight:600;font-size:14px;padding:10px 16px;border:0;border-radius:9px;color:var(--ink-mute);border-bottom:0}
+.nav-item:hover{background:var(--paper-2);color:var(--oxide)}
+.nav-item.active{background:var(--oxide);color:#fff;border-bottom:0}
+.nav-item .num,.nav-item.active .num{font-family:inherit;color:inherit;opacity:.7;font-size:12px}
+main{padding:18px 16px 40px}
+/* títulos de sección */
+.section-head{border-bottom:0;margin-bottom:16px;padding-bottom:0;align-items:center;flex-wrap:wrap}
+.section-eyebrow{font-family:inherit;font-size:12px;letter-spacing:.6px;font-weight:700;color:var(--ink-mute)}
+.section-title{font:700 22px/1.2 inherit;font-family:inherit;color:var(--oxide);display:flex;align-items:center;gap:10px;letter-spacing:0}
+.section-title::before{content:"";width:5px;height:24px;border-radius:3px;background:linear-gradient(var(--brand3),var(--oxide))}
+.section-title em{font-style:normal;color:var(--oxide)}
+.section-sub{font-size:13.5px;color:var(--ink-mute);max-width:none}
+/* tarjetas */
+.card{border-radius:var(--r);padding:18px 20px;margin-bottom:16px;box-shadow:var(--shadow-card);border-color:var(--rule)}
+.card-head{border-bottom:0;margin-bottom:12px;padding-bottom:0}
+.card-eyebrow{font-family:inherit;font-size:12px;letter-spacing:.6px;font-weight:700;color:var(--ink-mute);text-transform:uppercase}
+.card-title{font:700 17px/1.3 inherit;font-family:inherit;color:var(--ink)}
+/* KPIs como cajitas */
+.kpi-grid{gap:10px;background:transparent;border:0;box-shadow:none;border-radius:0;overflow:visible;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--rule);border-radius:12px;padding:14px 16px;gap:4px;box-shadow:var(--shadow-card)}
+.kpi-label{font-family:inherit;font-size:12px;letter-spacing:.3px;font-weight:600;text-transform:uppercase;color:var(--ink-mute)}
+.kpi-value{font:700 26px/1.15 inherit;font-family:inherit;color:var(--oxide);letter-spacing:0;font-variant-numeric:tabular-nums}
+.kpi-value .currency,.kpi-value .suffix{font-size:16px;font-family:inherit;color:var(--ink-mute)}
+.kpi-value.neg{color:var(--oxide-deep)}.kpi-value.pos{color:var(--oxide)}
+.kpi-foot{font-family:inherit;font-size:12.5px}
+/* botones */
+.btn{font-family:inherit;border-radius:10px;border:1.5px solid #bfd9c8;color:var(--oxide);background:#fff;font-weight:600;min-height:42px}
+.btn:hover{background:var(--paper-2);color:var(--oxide)}
+.btn.accent,.btn.primary{background:var(--brand-2);border-color:var(--brand-2);color:#fff}
+.btn.accent:hover,.btn.primary:hover{filter:brightness(1.06);background:var(--brand-2);color:#fff}
+.cj-sel,.ffv-ctrl input[type=number]{border:1.5px solid var(--rule);border-radius:10px;min-height:42px;font-family:inherit}
+/* tablas */
+.tbl{font-family:inherit;font-size:13.5px;font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{font-family:inherit}
+.tbl thead th{font-family:inherit;font-size:12.5px;letter-spacing:.2px;text-transform:none;color:var(--ink-mute);font-weight:700;background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.tbl tfoot td{border-top:1.5px solid var(--oxide)}
+.pill{font-family:inherit;border-radius:999px;font-weight:700;letter-spacing:.3px}
+.footer{font-family:inherit;font-size:12px;letter-spacing:0;text-transform:none}
+/* login */
+.pin-screen{background:var(--canvas)}
+.pin-card{border-radius:24px;box-shadow:0 12px 50px rgba(10,60,30,.10)}
+.pin-title{font:700 24px/1.2 inherit;font-family:inherit;color:var(--ink)}
+.pin-title em{font-style:normal;color:var(--oxide)}
+.pin-input{border:2px solid var(--brand3);border-radius:14px;font-family:inherit}
+.pin-enter{background:var(--brand-2);font-family:inherit;border-radius:12px}
+.pin-brand,.pin-foot,.pin-err-msg{font-family:inherit}
+/* flujo en vivo */
+.ffv-tbl{font-size:13px}
+.ffv-tbl tr.ffv-first td{border-top:1.5px solid var(--oxide)}
+.ffv-tbl tr.ffv-tg td{background:var(--paper-2)}
+.ffv-tbl tr.ffv-gan td{background:#e8f4ec}
+.ffv-tbl td:first-child{position:sticky;left:0;background:#fff;z-index:1}
+.ffv-tbl tr.ffv-tg td:first-child{background:var(--paper-2)} .ffv-tbl tr.ffv-gan td:first-child{background:#e8f4ec}
+.cj-falta{background:#fff;border-left:5px solid var(--brand3)}
+.ffv-falta-tbl td{white-space:normal;vertical-align:top}
+.ffv-falta-tbl td:nth-child(2){font-weight:600;color:var(--oxide)}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.tag.ok{background:#d6efdf;color:var(--oxide)} .tag.pend{background:#fff1cc;color:#7a4a00} .tag.man{background:#eceeed;color:#5a615d}
+@media(max-width:720px){.masthead .brand-meta{display:none}.kpi-value{font-size:21px}.nav-item{padding:8px 12px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -394,19 +478,14 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
   <div class="brand-row">
   <img class="brand-logo-img" src="winflex-logo.png" alt="Winflex S.A.">
   <div class="brand">
-    <span class="brand-eyebrow">Winflex S.A. · Análisis de Flujo de Fondos</span>
-    <h1 class="brand-title">Flujo de <em>Fondos</em></h1>
+    <span class="brand-eyebrow">Winflex S.A.</span>
+    <h1 class="brand-title">Flujo de Fondos</h1>
     <span class="brand-meta" id="fileMeta">—</span>
   </div>
   </div>
   <div class="actions">
-    <button class="btn" onclick="document.getElementById('fileInput2').click()">
-      Cambiar archivo
-    </button>
+    <button class="btn" onclick="abrirFlujoVivo(document.querySelector('.nav-item.active')?document.querySelector('.nav-item.active').dataset.tab:'vivo')" title="Volver a leer las apps">↻ <span class="ffv-btn-txt">Actualizar</span></button>
     <input type="file" id="fileInput2" accept=".xlsx,.xlsm,.xls" multiple style="display:none">
-    <button class="btn" id="syncBtn" onclick="syncPush()" title="Guardar este análisis en la nube para verlo en la tablet">
-      <span class="dot"></span> <span id="syncBtnTxt">Sincronizar</span>
-    </button>
     <button class="btn accent" id="aiBtn" onclick="generarAnalisisIA()">
       <span class="dot"></span> Copiar para IA
     </button>
@@ -434,7 +513,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <div>
       <div class="section-eyebrow">— Vista 01</div>
       <h2 class="section-title">Resumen <em>ejecutivo</em></h2>
-      <p class="section-sub">Lo más importante del año fiscal en una pantalla. Los datos de Marzo pueden estar incompletos según corresponda.</p>
+      <p class="section-sub">Lo más importante del período en una pantalla. El mes en curso está incompleto.</p>
     </div>
     <div class="pill" id="resumenStatus">EJ EN CURSO</div>
   </div>
@@ -443,7 +522,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <div class="kpi">
       <span class="kpi-label">Ventas acumuladas</span>
       <div class="kpi-value"><span class="currency">$</span><span id="kpiVentas">—</span></div>
-      <div class="kpi-foot"><span id="kpiVentasFoot">Suma B+N año fiscal</span></div>
+      <div class="kpi-foot"><span id="kpiVentasFoot">Suma 1 + 2 del período</span></div>
     </div>
     <div class="kpi">
       <span class="kpi-label">Ganancia acumulada</span>
@@ -458,7 +537,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <div class="kpi">
       <span class="kpi-label">Meses cargados</span>
       <div class="kpi-value"><span id="kpiMeses">—</span><span class="suffix">/12</span></div>
-      <div class="kpi-foot"><span id="kpiMesesFoot">Año fiscal Jul→Jun</span></div>
+      <div class="kpi-foot"><span id="kpiMesesFoot">Meses del período</span></div>
     </div>
   </div>
 
@@ -933,6 +1012,11 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
   <div class="card" style="padding:12px">
     <div class="tbl-wrap"><table class="tbl ffv-tbl" id="ffvTabla"></table></div>
   </div>
+  <div class="card">
+    <h3 class="card-title" style="margin-bottom:4px">Qué falta y cómo se carga</h3>
+    <p class="cj-nota" style="margin:0 0 10px">Todo lo que se cargue en Cheques con el proveedor en el rubro correcto entra solo acá. Lo que no tenga dónde cargarse va por "Cargas manuales".</p>
+    <div class="tbl-wrap"><table class="tbl ffv-falta-tbl" id="ffvFaltaTbl"></table></div>
+  </div>
   <div class="card cj-falta">
     <div class="card-eyebrow">De dónde sale cada rubro</div>
     <p><b>Ventas 1:</b> facturas de Seguimiento Cobranzas menos notas de crédito. <b>Ventas 2:</b> cobros de Caja 2. <b>Compras, Energía, Transporte, Otros, Servicios:</b> facturas de proveedores cargadas en Cheques, según el rubro de cada proveedor; van al circuito 2 si el proveedor termina en "C2" o se pagaron con una OP de Caja 2. <b>Mantenimiento:</b> app Mantenimiento (B → 1, N → 2). <b>Mano de obra:</b> Horas › Control mensual (recibos → 1, por fuera y vales → 2). <b>Impuestos 1:</b> el % fijo sobre Ventas 1, como en el Excel. Lo que falta se completa en "Cargas manuales" (m = cargado a mano).</p>
@@ -954,7 +1038,6 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
         <option value="90">90 días</option>
       </select>
       <button class="btn" onclick="cajaCargar(true)"><span class="dot"></span> <span id="cjBtnTxt">Actualizar</span></button>
-      <button class="btn" id="cjBtnExcel" onclick="cajaIrAnalisis()">📂 Análisis mensual</button>
     </div>
   </div>
 
@@ -2378,7 +2461,7 @@ async function generarAnalisisIA(){
 
 Winflex tiene 3 líneas de producto: PET (envases), Flexibles (bolsas/láminas), Bandejas. PET y Bandejas comparten materia prima. Flexibles compra MP por separado (incluyendo a Amcor como proveedor principal).
 
-Te paso los datos del año fiscal en curso (Julio→Junio). El "Total 1" es el circuito formal/blanco, el "Total 2" es el informal/negro. Algunos meses pueden estar incompletos.
+Te paso los datos del período en curso. El "Total 1" es el circuito formal/blanco, el "Total 2" es el informal/negro. Algunos meses pueden estar incompletos.
 
 DATOS:
 ${JSON.stringify(snap, null, 2)}
@@ -2504,7 +2587,7 @@ function _aplicarVentanaModulo(){
   if(!ES_HIJA)return;
   document.body.classList.add('modo-modulo');
   try{document.title=(MODULOS[MODULO_VENTANA]||'')+' · Flujo de Fondos';}catch(e){}
-  if(MODULO_VENTANA==='caja'||MODULO_VENTANA==='vivo'){ abrirFlujoVivo(MODULO_VENTANA); return; }
+  _mostrarApp(); abrirFlujoVivo(MODULO_VENTANA); return;
   navegarA(MODULO_VENTANA);
   if(WF_BIN){ try{ syncLoad(true).then(()=>navegarA(MODULO_VENTANA)).catch(()=>{}); }catch(_){ } }
 }
@@ -3018,12 +3101,17 @@ const FFV_DEF_RUBRO = [
   [/afip|arba|agip|iibb|vep/i,'Impuestos'],
   [/bulonera|cnc|eurodrive|frio|rodamiento|refrigeraci|metal[uú]rgica|motortech|matafuego|mozart|nicelectric|oleodin[aá]mica|esmerila/i,'Excluir']
 ];
-let FFV = {cfg:null, cfgOk:false, ini:null, ultimo:null, activo:false};
+let FFV = {cfg:null, cfgOk:false, ini:null, modo:'ej', ultimo:null, activo:false};
 
 function ffvIniEjercicio(){ // año de inicio del ejercicio en curso (julio)
   const h=new Date(); return h.getMonth()>=6 ? h.getFullYear() : h.getFullYear()-1;
 }
-function ffvMeses(y0){ return MESES.map((mes,i)=>{ const y=i<6?y0:y0+1; const m=i<6?7+i:i-5; return {mes, ym:y+'-'+String(m).padStart(2,'0')}; }); }
+const MESES_CAL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function ffvMeses(y0){
+  if(FFV.modo==='cal') return MESES_CAL.map((mes,i)=>({mes, ym:y0+'-'+String(i+1).padStart(2,'0')}));
+  return MESES.map((mes,i)=>{ const y=i<6?y0:y0+1; const m=i<6?7+i:i-5; return {mes, ym:y+'-'+String(m).padStart(2,'0')}; });
+}
+function ffvPeriodoLbl(){ return FFV.modo==='cal' ? 'Año '+FFV.ini : 'E'+(FFV.ini-1984)+' (jul '+String(FFV.ini).slice(2)+' → jun '+String(FFV.ini+1).slice(2)+')'; }
 function ffvRubroDe(prov){
   const c=FFV.cfg&&FFV.cfg.rubrosProv||{};
   if(c[prov]) return c[prov];
@@ -3158,8 +3246,7 @@ async function abrirFlujoVivo(destino){
 function ffvAplicar(){
   const R=ffvCalcular(FFV.ini); FFV.ultimo=R; FFV.activo=true;
   DATA=ffvADATA(R); VENTAS_DET=null; COMPRAS_DET=null;
-  const E='E'+(FFV.ini-1984);
-  const meta=E+' EN VIVO · leído '+new Date(CAJA.ts||Date.now()).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const meta=(WF_USER?WF_USER+' · ':'')+ffvPeriodoLbl()+' · leído '+new Date(CAJA.ts||Date.now()).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   _renderDashboard(meta);
   ffvRender();
 }
@@ -3168,8 +3255,15 @@ function ffvAplicar(){
 function ffvRender(){
   const R=FFV.ultimo; const el=document.getElementById('ffvTabla'); if(!R||!el) return;
   const sel=document.getElementById('ffvEj');
-  if(sel && !sel.options.length){ const y=ffvIniEjercicio(); [y,y-1].forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent='E'+(a-1984)+' · jul '+a+' → jun '+(a+1); sel.appendChild(o); }); }
-  if(sel) sel.value=FFV.ini;
+  if(sel && !sel.options.length){
+    const y=ffvIniEjercicio(), yc=new Date().getFullYear();
+    const g1=document.createElement('optgroup'); g1.label='Ejercicio (jul → jun)';
+    [y,y-1].forEach(a=>{ const o=document.createElement('option'); o.value='ej:'+a; o.textContent='E'+(a-1984)+' · jul '+a+' → jun '+(a+1); g1.appendChild(o); });
+    const g2=document.createElement('optgroup'); g2.label='Año calendario (ene → dic)';
+    [yc,yc-1].forEach(a=>{ const o=document.createElement('option'); o.value='cal:'+a; o.textContent='Año '+a; g2.appendChild(o); });
+    sel.appendChild(g1); sel.appendChild(g2);
+  }
+  if(sel) sel.value=FFV.modo+':'+FFV.ini;
   const iva=document.getElementById('ffvSinIva'); if(iva) iva.checked=!!FFV.cfg.params.sinIva;
   const imp=document.getElementById('ffvImp'); if(imp) imp.value=FFV.cfg.params.impPct;
   const hoyYm=_cjHoy().slice(0,7);
@@ -3198,10 +3292,44 @@ function ffvRender(){
   const lines=R.avisos.slice();
   if(sinRev) lines.push(sinRev+' proveedores con rubro asignado automáticamente: revisalos en "Rubros de proveedores".');
   av.innerHTML=lines.length?'<b>A revisar:</b><br>'+lines.map(_cjEsc).join('<br>'):'';
+  ffvRenderFaltantes(R);
   document.getElementById('ffvMeta').textContent='Leído '+new Date(CAJA.ts).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' · ● mes en curso, al día de hoy · pasá el mouse sobre un número para ver de dónde sale';
 }
 
-async function ffvCambiarEj(v){ FFV.ini=+v; ffvAplicar(); navegarA('vivo'); }
+
+/* ---------- Qué falta y cómo se carga ---------- */
+function ffvRenderFaltantes(R){
+  const el=document.getElementById('ffvFaltaTbl'); if(!el||!R) return;
+  const hoyYm=_cjHoy().slice(0,7);
+  const pasados=R.meses.map((m,i)=>m.ym<hoyYm?i:-1).filter(i=>i>=0);
+  const tiene=(r,c)=>pasados.length>0 && pasados.every(i=>Math.abs(R.M[r][c][i])>0.5);
+  const algo=(r,c)=>pasados.some(i=>Math.abs(R.M[r][c][i])>0.5);
+  const soloManual=(r,c)=>pasados.some(i=>R.S[r][c][i]['Carga manual']) && !pasados.some(i=>Object.keys(R.S[r][c][i]).some(k=>k!=='Carga manual'));
+  const sinRev=Object.keys(FFV.provSum||{}).filter(p=>!(FFV.cfg.rubrosProv||{})[p]).length;
+  const cart=(function(){ const ch=_cjCheques(CAJA.src.cheques); if(!ch) return 0; const h=_cjHoy(); let x=0;
+    ch.cheques.forEach(c=>{ if(c.estado==='En cartera'&&c.caja!=='caja2'&&_cjIso(c.fecha_cobro)&&_cjIso(c.fecha_cobro)<h) x+=_cjN(c.importe); });
+    ch.echeqs.forEach(e=>{ if(e.estado!=='usado'&&_cjIso(e.fecha_cobro)&&_cjIso(e.fecha_cobro)<h) x+=_cjN(e.importe); }); return x; })();
+  const bancosAntig=(function(){ try{ const r=cajaCalcular(7); return r.bancos?r.bancos.antig:999; }catch(_){ return 999; } })();
+  const est=(ok,parcial)=> ok?'<span class="tag ok">Listo</span>':parcial?'<span class="tag man">A medias</span>':'<span class="tag pend">Falta</span>';
+  const filas=[
+    ['Mano de obra (recibos y por fuera)','Horas › Control mensual','Tocar una vez "↻ Resumen p/ Flujo". Después se actualiza solo cada vez que se guarda un período.','Matías', tiene('Mano de obra',1), algo('Mano de obra',1)],
+    ['Rubro de cada proveedor','Flujofondos › Rubros de proveedores','Revisar la lista una vez y cada vez que aparezca un proveedor nuevo ('+sinRev+' sin revisar).','Matías', sinRev===0, false],
+    ['Energía (Edesur Lanús, EDEN Chivilcoy)','Cheques › Facturas, proveedor "Edesur" / "EDEN"','Cargar la factura de luz como cualquier factura de proveedor: entra sola como Energía 1. Mientras tanto, Cargas manuales.','Mirta', tiene('Energia',1)&&!soloManual('Energia',1), algo('Energia',1)],
+    ['Impuestos (IVA, IIBB, Ganancias, F931)','Cheques › Facturas, proveedor "AFIP" / "ARBA"','Cargar cada VEP como factura con su vencimiento: entra como Impuestos. Hoy se calcula 5% de Ventas 1, como en el Excel.','Mirta', false, algo('Impuestos',1)],
+    ['Transporte (fletes, Eugenio, camión de Monti)','Cheques › Facturas, proveedor con rubro Transporte','Factura o recibo de cada flete. Si se paga en efectivo, con OP de Caja 2 para que vaya al circuito 2.','Mirta / Georgina', tiene('Transporte',2)||tiene('Transporte',1), algo('Transporte',1)||algo('Transporte',2)],
+    ['Servicios y más (contador, seguros, teléfono, limpieza)','Cheques › Facturas, proveedor con rubro Servicios','Cargar las facturas mensuales; asignar el rubro una vez por proveedor.','Mirta', tiene('Servicios y mas',1), algo('Servicios y mas',1)],
+    ['Otros gastos sin factura','Flujofondos › Cargas manuales','Total del mes por circuito. Si se repite siempre el mismo gasto, conviene crear el proveedor en Cheques.','Matías', tiene('Otros',1)||tiene('Otros',2), algo('Otros',1)||algo('Otros',2)],
+    ['Todas las compras cargadas en Cheques','Cheques › Facturas','Cargar todas las facturas y remitos de compra, también los que se pagan por Caja 2. Lo que no está en Cheques no entra en Compras.','Mirta', tiene('Compras',1)&&tiene('Compras',2), algo('Compras',1)],
+    ['Saldos de bancos al día','Cheques › Bancos','Cargar el saldo de las 4 cuentas todos los días (hoy el último es de hace '+bancosAntig+' días).','Mirta', bancosAntig<=1, bancosAntig<=5],
+    ['Cheques en cartera con fecha cumplida','Cheques › Cartera','Dar de baja los ya depositados o usados ($ '+fmtMoneyFull(cart)+' hoy). Si no, la caja diaria los suma como si entraran hoy.','Mirta', cart<1, false],
+    ['Producto por factura (PET, Flexibles, Bandejas)','Seguimiento Cobranzas','Elegir el producto en cada factura (o uno por defecto por cliente). Habilita la pestaña "Por producto".','Mirta', false, false],
+    ['Arqueo de efectivo','Caja 2','Cargar cada tanto cuánta plata hay en caja, para tener el saldo del circuito 2.','Matías', false, false]
+  ];
+  el.innerHTML='<thead><tr><th>Estado</th><th>Qué falta</th><th>Dónde va</th><th>Cómo se carga</th><th>Quién</th></tr></thead><tbody>'+
+    filas.map(f=>'<tr><td>'+est(f[4],f[5])+'</td><td>'+_cjEsc(f[0])+'</td><td>'+_cjEsc(f[1])+'</td><td>'+_cjEsc(f[2])+'</td><td>'+_cjEsc(f[3])+'</td></tr>').join('')+'</tbody>';
+}
+
+async function ffvCambiarEj(v){ const [m,a]=String(v).split(':'); FFV.modo=m; FFV.ini=+a; const t=document.querySelector('.nav-item.active'); ffvAplicar(); navegarA(t?t.dataset.tab:'vivo'); }
 async function ffvParam(k,v){
   const ok=await ffvGuardarCfg(c=>{ c.params[k]=v; });
   if(ok){ ffvAplicar(); navegarA('vivo'); }
@@ -3227,7 +3355,7 @@ function ffvAbrirManuales(){
   let h='<p class="cj-nota" style="margin:0 0 12px">Lo que todavía no está en ninguna app. Se suma a lo que viene de las apps. Importes en pesos, sin IVA en el circuito 1. Un ajuste puede ser negativo.</p><div class="tbl-wrap" style="max-height:58vh;overflow:auto"><table class="tbl ffv-man-tbl"><thead><tr><th>Rubro</th>'+meses.map(m=>'<th>'+m.mes.slice(0,3)+'</th>').join('')+'</tr></thead><tbody>';
   FFV_MANUALES.forEach(([r,c,lbl])=>{ h+='<tr><td>'+lbl+'</td>'+meses.map(m=>'<td><input inputmode="decimal" data-r="'+r+'" data-c="'+c+'" data-ym="'+m.ym+'" value="'+val(r,c,m.ym)+'"></td>').join('')+'</tr>'; });
   h+='</tbody></table></div>';
-  ffvModal('Cargas manuales · E'+(FFV.ini-1984), h, async(box)=>{
+  ffvModal('Cargas manuales · '+ffvPeriodoLbl(), h, async(box)=>{
     const vals=[]; box.querySelectorAll('input[data-r]').forEach(i=>vals.push([i.dataset.r,i.dataset.c,i.dataset.ym,i.value.trim()]));
     const ok=await ffvGuardarCfg(cfg=>{ vals.forEach(([r,c,ym,v])=>{ cfg.manual[r]=cfg.manual[r]||{}; cfg.manual[r][c]=cfg.manual[r][c]||{}; const n=_cjN(v); if(v===''||!n) delete cfg.manual[r][c][ym]; else cfg.manual[r][c][ym]=n; }); });
     if(ok){ ffvAplicar(); navegarA('vivo'); } return ok; }, true);
@@ -3274,9 +3402,12 @@ function pinSubmit(){
 }
 function _unlock(){
   document.getElementById('pinScreen').style.display='none';
-  document.getElementById('emptyState').style.display='';
-  checkCloud();
-  _aplicarVentanaModulo();
+  if(ES_HIJA){ _aplicarVentanaModulo(); return; }
+  _mostrarApp(); abrirFlujoVivo('vivo');
+}
+function _mostrarApp(){
+  const es=document.getElementById('emptyState'); es.classList.add('hidden'); es.style.display='none';
+  document.getElementById('appState').classList.remove('hidden');
 }
 // Enter envía; solo dígitos en el input
 (function(){
@@ -3448,10 +3579,7 @@ if('serviceWorker' in navigator){
 function _pinsHasUser(name){ return name && Object.values(PINS).includes(name); }
 (function initFlujo(){
   if(_pinsHasUser(WF_USER)){
-    document.getElementById('pinScreen').style.display='none';
-    document.getElementById('emptyState').style.display='';
-    checkCloud();
-    _aplicarVentanaModulo();
+    _unlock();
   } else {
     const inp=document.getElementById('pinInput');
     if(inp) setTimeout(()=>inp.focus(), 100);
