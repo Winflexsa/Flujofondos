@@ -42,6 +42,28 @@
   --shadow-card:0 1px 3px rgba(26,25,22,0.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
+/* ===== Flujo en vivo ===== */
+.ffv-tbl td,.ffv-tbl th{padding:6px 8px;white-space:nowrap}
+.ffv-tbl tr.ffv-first td{border-top:1.5px solid var(--ink)}
+.ffv-tbl tr.ffv-tg td{font-weight:700;background:var(--paper-2)}
+.ffv-tbl tr.ffv-pct td{color:var(--ink-mute);font-size:11px}
+.ffv-tbl tr.ffv-gan td{background:#eef6f0}
+.ffv-tbl th.ffv-hoy,.ffv-tbl td.ffv-hoy{background:#fff8e6}
+.ffv-tbl td[title]{cursor:help}
+.ffv-man{color:var(--mustard);font-weight:700;margin-left:2px}
+.ffv-auto{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mustard);border:1px solid var(--gold);border-radius:4px;padding:0 4px;margin-left:4px}
+.ffv-avisos{font-size:12px;color:var(--oxide-deep);margin:0 0 16px;line-height:1.6}
+.ffv-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ffv-ctrl label{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px}
+.ffv-ctrl input[type=number]{width:56px;padding:8px;border:1.5px solid var(--ink);border-radius:6px;font-family:inherit}
+.ffv-ov{position:fixed;inset:0;background:rgba(26,25,22,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.ffv-box{background:var(--paper);border-radius:10px;max-width:720px;width:100%;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.ffv-box.ancho{max-width:1200px}
+.ffv-box-head,.ffv-box-foot{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--rule)}
+.ffv-box-foot{border-top:1px solid var(--rule);border-bottom:none;justify-content:flex-end;gap:8px}
+.ffv-box-body{padding:16px 20px;overflow:auto}
+.ffv-box select{padding:6px 8px;border:1px solid var(--rule);border-radius:6px;font-family:inherit;font-size:13px}
+.ffv-man-tbl input{width:96px;padding:5px 6px;border:1px solid var(--rule);border-radius:4px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px}
 /* ===== 00 · Caja diaria ===== */
 body.sin-excel .nav-item:not([data-tab="caja"]){display:none}
 .cj-fuentes{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);margin:-14px 0 20px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
@@ -311,10 +333,13 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
     <div class="cj-entrada">
       <div class="cloud-ico">$</div>
       <div class="cloud-txt">
-        <div class="cloud-title">Caja diaria en vivo</div>
-        <div class="cloud-meta">Bancos, cheques, cobranzas, proveedores y sueldos, leídos de las apps. No necesita archivos.</div>
+        <div class="cloud-title">Flujo de fondos en vivo</div>
+        <div class="cloud-meta">El mismo flujo del Excel y la caja diaria, armados con los datos de las apps. No necesita archivos.</div>
       </div>
-      <button class="btn accent" onclick="abrirCaja()"><span class="dot"></span> Ver caja diaria</button>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn accent" onclick="abrirFlujoVivo('vivo')"><span class="dot"></span> <span class="ffv-btn-txt">Ver flujo en vivo</span></button>
+        <button class="btn" onclick="abrirFlujoVivo('caja')">Caja diaria</button>
+      </div>
     </div>
     <div class="dropzone" id="dropzone">
       <div class="dropzone-eyebrow">— Subir archivos mensuales</div>
@@ -389,6 +414,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 </header>
 
 <nav class="nav">
+  <button class="nav-item" data-tab="vivo"><span class="num">●</span>Flujo en vivo</button>
   <button class="nav-item" data-tab="caja"><span class="num">00</span>Caja diaria</button>
   <button class="nav-item active" data-tab="resumen"><span class="num">01</span>Resumen ejecutivo</button>
   <button class="nav-item" data-tab="evolucion"><span class="num">02</span>Evolución mensual</button>
@@ -881,6 +907,35 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
       <div class="divider"></div>
       <p style="font-size:13px;color:var(--ink-mute)"><em>El análisis es una lectura, no una verdad absoluta.</em> Claude no conoce el contexto externo (mercado, clientes, decisiones pasadas), solo lo que está en el Excel.</p>
     </div>
+  </div>
+</section>
+
+<!-- ============== FLUJO EN VIVO (la planilla, armada desde las apps) ============== -->
+<section class="section" id="sec-vivo">
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">— En vivo · desde las apps</div>
+      <h2 class="section-title">Flujo de <em>fondos</em></h2>
+      <p class="section-sub" id="ffvMeta">—</p>
+    </div>
+    <div class="ffv-ctrl">
+      <select id="ffvEj" class="cj-sel" onchange="ffvCambiarEj(this.value)"></select>
+      <button class="btn" onclick="abrirFlujoVivo('vivo')"><span class="dot"></span> <span class="ffv-btn-txt">Actualizar</span></button>
+    </div>
+  </div>
+  <div class="ffv-ctrl" style="margin:-12px 0 16px">
+    <button class="btn" onclick="ffvAbrirRubros()">Rubros de proveedores</button>
+    <button class="btn" onclick="ffvAbrirManuales()">Cargas manuales</button>
+    <label><input type="checkbox" id="ffvSinIva" onchange="ffvParam('sinIva',this.checked)"> Circuito 1 sin IVA (÷ 1,21)</label>
+    <label>Impuestos 1 = <input type="number" id="ffvImp" step="0.5" min="0" onchange="ffvParam('impPct',+this.value)"> % de Ventas 1</label>
+  </div>
+  <div class="ffv-avisos" id="ffvAvisos"></div>
+  <div class="card" style="padding:12px">
+    <div class="tbl-wrap"><table class="tbl ffv-tbl" id="ffvTabla"></table></div>
+  </div>
+  <div class="card cj-falta">
+    <div class="card-eyebrow">De dónde sale cada rubro</div>
+    <p><b>Ventas 1:</b> facturas de Seguimiento Cobranzas menos notas de crédito. <b>Ventas 2:</b> cobros de Caja 2. <b>Compras, Energía, Transporte, Otros, Servicios:</b> facturas de proveedores cargadas en Cheques, según el rubro de cada proveedor; van al circuito 2 si el proveedor termina en "C2" o se pagaron con una OP de Caja 2. <b>Mantenimiento:</b> app Mantenimiento (B → 1, N → 2). <b>Mano de obra:</b> Horas › Control mensual (recibos → 1, por fuera y vales → 2). <b>Impuestos 1:</b> el % fijo sobre Ventas 1, como en el Excel. Lo que falta se completa en "Cargas manuales" (m = cargado a mano).</p>
   </div>
 </section>
 
@@ -2416,7 +2471,7 @@ function renderMarkdown(t){
    TABS
    ============================================================ */
 // ── NAVEGACIÓN POR VENTANAS (mismo sistema que Sueldos/Horas) ──────
-const MODULOS={caja:'00 · Caja diaria',resumen:'01 · Resumen ejecutivo',evolucion:'02 · Evolución mensual',estructura:'03 · Estructura de costos',byn:'04 · Blanca vs Negra',equilibrio:'05 · Punto de equilibrio',detalle:'06 · Detalle mensual',productos:'07 · Por producto',ia:'08 · Conclusiones IA'};
+const MODULOS={vivo:'Flujo en vivo',caja:'00 · Caja diaria',resumen:'01 · Resumen ejecutivo',evolucion:'02 · Evolución mensual',estructura:'03 · Estructura de costos',byn:'04 · Blanca vs Negra',equilibrio:'05 · Punto de equilibrio',detalle:'06 · Detalle mensual',productos:'07 · Por producto',ia:'08 · Conclusiones IA'};
 const _paramTab=(function(){try{return new URLSearchParams(location.search).get('tab');}catch(_){return null;}})();
 const MODULO_VENTANA=(_paramTab&&MODULOS[_paramTab])?_paramTab:null;
 const ES_HIJA=!!MODULO_VENTANA;
@@ -2428,6 +2483,7 @@ function navegarA(tab){
   const sec=document.getElementById('sec-'+tab); if(sec)sec.classList.add('active');
   setTimeout(()=>Object.values(CHARTS).forEach(c=>{try{c.resize()}catch(_){}}),60);
   if(tab==='caja') cajaCargar(false);
+  if(tab==='vivo' && !FFV.ultimo) abrirFlujoVivo('vivo');
 }
 function abrirModulo(tab){
   if(!MODULOS[tab])return;
@@ -2448,7 +2504,7 @@ function _aplicarVentanaModulo(){
   if(!ES_HIJA)return;
   document.body.classList.add('modo-modulo');
   try{document.title=(MODULOS[MODULO_VENTANA]||'')+' · Flujo de Fondos';}catch(e){}
-  if(MODULO_VENTANA==='caja'){ abrirCaja(); return; }
+  if(MODULO_VENTANA==='caja'||MODULO_VENTANA==='vivo'){ abrirFlujoVivo(MODULO_VENTANA); return; }
   navegarA(MODULO_VENTANA);
   if(WF_BIN){ try{ syncLoad(true).then(()=>navegarA(MODULO_VENTANA)).catch(()=>{}); }catch(_){ } }
 }
@@ -2522,6 +2578,7 @@ function updateSlot(tipo, fileName){
 
 function entrarApp(){
   if(!DATA){ showError('Falta el flujo de fondos (archivo principal)'); return; }
+  FFV.activo=false;
   document.body.classList.remove('sin-excel');
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('appState').classList.remove('hidden');
@@ -2594,7 +2651,8 @@ const CAJA_BINS = {
   cheques:   {id:'69c6b405aa77b81da9277f9b', nombre:'Cheques'},
   cobranzas: {id:'6a0b2b196877513b27912597', nombre:'Seguimiento Cobranzas'},
   caja2:     {id:'69c5b073c3097a1dd563e30a', nombre:'Caja 2'},
-  horas:     {id:'6a21d35df5f4af5e29b9f410', nombre:'Horas'}
+  horas:     {id:'6a21d35df5f4af5e29b9f410', nombre:'Horas'},
+  mant:      {id:'6adf58ffac6210605a534161', nombre:'Mantenimiento'}
 };
 let CAJA = {cargando:false, ts:0, src:{}, err:{}};
 
@@ -2924,18 +2982,261 @@ function cajaRender(){
 }
 
 /* ---------- Entrada a la pestaña ---------- */
-function abrirCaja(){
-  document.getElementById('emptyState').classList.add('hidden');
-  document.getElementById('emptyState').style.display='none';
-  document.getElementById('appState').classList.remove('hidden');
-  document.body.classList.toggle('sin-excel', !DATA);
-  navegarA('caja');
-}
+function abrirCaja(){ abrirFlujoVivo('caja'); }
 function cajaIrAnalisis(){
   if(DATA){ document.body.classList.remove('sin-excel'); navegarA('resumen'); return; }
   document.getElementById('appState').classList.add('hidden');
   document.getElementById('emptyState').classList.remove('hidden');
   document.getElementById('emptyState').style.display='';
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   FLUJO EN VIVO — arma el mismo flujo de fondos del Excel (rubros × meses,
+   Total 1 / Total 2) leyendo las apps. Alimenta todas las pestañas.
+   Fuentes (solo lectura):
+     Ventas 1   = facturas de Seguimiento Cobranzas − NC (sin IVA si está tildado)
+     Ventas 2   = cobros de Caja 2
+     Compras / Energía / Transporte / Otros / Servicios / Impuestos
+                = facturas de proveedores de Cheques, según el rubro de cada proveedor
+                  (circuito 2 si el proveedor termina en "C2" o se pagó con OP de Caja 2)
+     Mantenimiento = app Mantenimiento (B → 1, N → 2)
+     Mano de obra  = Horas › Control mensual (recibos → 1, por fuera + vales → 2)
+     Impuestos 1   = % fijo sobre Ventas 1 (como el Excel) + lo cargado
+     + cargas manuales por rubro / circuito / mes (se guardan en el bin de esta app)
+   ════════════════════════════════════════════════════════════ */
+const FFV_CFG_BIN = '6ae389b6ffd5d16053966ac0';
+const FFV_MANT_BIN = '6adf58ffac6210605a534161';
+const FFV_RUBROS = ['Compras','Energia','Transporte','Otros','Servicios y mas','Impuestos','Excluir'];
+const FFV_RUBRO_LBL = {'Compras':'Compras','Energia':'Energía','Transporte':'Transporte','Otros':'Otros','Servicios y mas':'Servicios y más','Impuestos':'Impuestos','Excluir':'No suma (ya está en otra app)'};
+// Rubro por defecto según el nombre del proveedor (se cambia en "Rubros de proveedores")
+const FFV_DEF_RUBRO = [
+  [/expreso|transporte|flete|log[ií]stica/i,'Transporte'],
+  [/edesur|eden\b|edenor|metrogas|camuzzi|aysa/i,'Energia'],
+  [/cont\.|contador|estudio|honorario|seguro|telecom|personal|claro|movistar|abl|municipal/i,'Servicios y mas'],
+  [/afip|arba|agip|iibb|vep/i,'Impuestos'],
+  [/bulonera|cnc|eurodrive|frio|rodamiento|refrigeraci|metal[uú]rgica|motortech|matafuego|mozart|nicelectric|oleodin[aá]mica|esmerila/i,'Excluir']
+];
+let FFV = {cfg:null, cfgOk:false, ini:null, ultimo:null, activo:false};
+
+function ffvIniEjercicio(){ // año de inicio del ejercicio en curso (julio)
+  const h=new Date(); return h.getMonth()>=6 ? h.getFullYear() : h.getFullYear()-1;
+}
+function ffvMeses(y0){ return MESES.map((mes,i)=>{ const y=i<6?y0:y0+1; const m=i<6?7+i:i-5; return {mes, ym:y+'-'+String(m).padStart(2,'0')}; }); }
+function ffvRubroDe(prov){
+  const c=FFV.cfg&&FFV.cfg.rubrosProv||{};
+  if(c[prov]) return c[prov];
+  for(const [re,r] of FFV_DEF_RUBRO) if(re.test(prov)) return r;
+  return 'Compras';
+}
+
+async function ffvCargarCfg(){
+  try{
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+FFV_CFG_BIN+'/latest',{headers:{'X-Master-Key':WF_MASTER_KEY,'X-Bin-Meta':'false'}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json(); const rec=d.record||d;
+    FFV.cfg={rubrosProv:rec.rubrosProv||{}, manual:rec.manual||{}, params:Object.assign({impPct:5,sinIva:true},rec.params||{})};
+    FFV.cfgOk=true;
+  }catch(e){
+    if(!FFV.cfg) FFV.cfg={rubrosProv:{},manual:{},params:{impPct:5,sinIva:true}};
+    FFV.cfgOk=false; console.warn('[ffv] config',e);
+  }
+}
+async function ffvGuardarCfg(cambio){
+  // Lee lo último, aplica el cambio y guarda (para no pisar lo que cargó otra PC)
+  await ffvCargarCfg();
+  if(!FFV.cfgOk){ alert('No se pudo leer la configuración de la nube: no se guardó nada. Probá de nuevo.'); return false; }
+  cambio(FFV.cfg);
+  const body={app:'flujofondos-vivo',v:1,rubrosProv:FFV.cfg.rubrosProv,manual:FFV.cfg.manual,params:FFV.cfg.params,savedAt:new Date().toISOString(),by:WF_USER||''};
+  const r=await fetch('https://api.jsonbin.io/v3/b/'+FFV_CFG_BIN,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':WF_MASTER_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(body)});
+  if(!r.ok){ alert('No se pudo guardar (HTTP '+r.status+').'); return false; }
+  return true;
+}
+
+/* ---------- Cálculo de la matriz ---------- */
+function ffvCalcular(y0){
+  const meses=ffvMeses(y0), idx={}; meses.forEach((m,i)=>idx[m.ym]=i);
+  const P=FFV.cfg.params, iva=P.sinIva?1.21:1;
+  const RUB=['Ventas',...CATEGORIAS];
+  const M={}, S={}; // M[rubro][c][i] montos · S[rubro][c][i] = {fuente: monto}
+  RUB.forEach(r=>{ M[r]={1:Array(12).fill(0),2:Array(12).fill(0)}; S[r]={1:Array.from({length:12},()=>({})),2:Array.from({length:12},()=>({}))}; });
+  const add=(r,c,ym,v,fuente)=>{ const i=idx[ym]; if(i==null||!v) return; M[r][c][i]+=v; S[r][c][i][fuente]=(S[r][c][i][fuente]||0)+v; };
+  const ym=s=>{ const x=_cjIso(s); return x?x.slice(0,7):''; };
+  const avisos=[];
+
+  // Ventas 1: facturas de clientes − NC
+  const cob=CAJA.src.cobranzas;
+  if(cob){
+    (cob.comprobantes||[]).forEach(f=>{
+      const t=String(f.tipo||''); if(t==='AJUSTE'||t==='FC_X') return;
+      const imp=_cjN(f.importe)/iva; const m=ym(f.fecha);
+      if(t.startsWith('NC_')) add('Ventas',1,m,-imp,'Notas de crédito (Cobranzas)');
+      else add('Ventas',1,m,imp,'Facturas (Cobranzas)');
+    });
+  } else avisos.push('No se pudo leer Seguimiento Cobranzas: falta Ventas 1.');
+  // Ventas 2: Caja 2
+  const c2=CAJA.src.caja2;
+  if(c2) (c2.records||[]).forEach(r=>add('Ventas',2,ym(r.fecha),_cjN(r.total),'Cobros Caja 2'));
+  else avisos.push('No se pudo leer Caja 2: falta Ventas 2.');
+
+  // Gastos de proveedores (Cheques)
+  const ch=_cjCheques(CAJA.src.cheques); const provSum={};
+  if(ch){
+    const opTipo={}; ch.ops.forEach(o=>{ if(o.estado!=='anulada') opTipo[o.id]=String(o.tipo||'1'); });
+    ch.facturas.forEach(f=>{
+      if(f.anulada) return; const prov=f.proveedor||'(sin proveedor)';
+      const m=ym(f.fecha); const i=idx[m];
+      const rub=ffvRubroDe(prov);
+      if(i!=null){ provSum[prov]=(provSum[prov]||0)+_cjN(f.total); }
+      if(rub==='Excluir') return;
+      const c2p=/\bC2$/i.test(prov.trim()) || (f.pagos||[]).some(p=>opTipo[p.op_id]==='2');
+      const circ=c2p?2:1;
+      add(rub,circ,m,_cjN(f.total)/(circ===1?iva:1),'Facturas '+prov);
+    });
+  } else avisos.push('No se pudo leer Cheques: faltan compras y gastos de proveedores.');
+  FFV.provSum=provSum;
+
+  // Mantenimiento (app Mantenimiento)
+  const mt=CAJA.src.mant;
+  if(mt&&Array.isArray(mt.gastos)){
+    mt.gastos.forEach(g=>{ const circ=(g.pago==='N')?2:1; add('Mantenimiento',circ,ym(g.fec),_cjN(g.ars),'App Mantenimiento'+(g.pago&&g.pago!=='B'&&g.pago!=='N'?' ('+g.pago+')':'')); });
+  } else avisos.push('No se pudo leer la app Mantenimiento.');
+
+  // Mano de obra (Horas › Control mensual)
+  const cm=(CAJA.src.horas&&CAJA.src.horas.controlMensual)||{};
+  const moFalta=[];
+  meses.forEach(mm=>{ const r=cm[mm.ym]&&cm[mm.ym].resumen;
+    if(r&&r.totales){ add('Mano de obra',1,mm.ym,_cjN(r.totales.recibos),'Recibos (Horas)'); add('Mano de obra',2,mm.ym,_cjN(r.totales.porFuera)+_cjN(r.totales.vales),'Por fuera + vales (Horas)'); }
+    else if(cm[mm.ym]) moFalta.push(mm.mes);
+  });
+  if(moFalta.length) avisos.push('Mano de obra sin resumen en: '+moFalta.join(', ')+'. En Horas › Control mensual tocá "↻ Resumen p/ Flujo".');
+
+  // Cargas manuales
+  const man=FFV.cfg.manual||{};
+  Object.keys(man).forEach(r=>{ if(!M[r]) return; [1,2].forEach(c=>{ const o=(man[r]||{})[c]||{}; Object.keys(o).forEach(m=>add(r,c,m,_cjN(o[m]),'Carga manual')); }); });
+
+  // Impuestos 1 = % sobre Ventas 1 (igual que el Excel)
+  M['Ventas'][1].forEach((v,i)=>{ const x=v*(_cjN(P.impPct)/100); if(x){ M['Impuestos'][1][i]+=x; S['Impuestos'][1][i]['Ventas 1 × '+P.impPct+'%']=x; } });
+
+  return {meses, M, S, avisos};
+}
+
+/* Arma el objeto DATA que usan las pestañas 01–08 */
+function ffvADATA(R){
+  const hoyYm=_cjHoy().slice(0,7);
+  const blk=(t1,t2,ventasTG)=>{
+    const tg=t1.map((v,i)=>v+t2[i]); const s=a=>a.reduce((x,y)=>x+y,0);
+    const vAc=ventasTG?s(ventasTG):0;
+    return {ratio: vAc?s(tg)/vAc:null, total1:{acum:s(t1),meses:t1.slice()}, total2:{acum:s(t2),meses:t2.slice()}, totalGeneral:{acum:s(tg),meses:tg},
+      pctVentas: ventasTG?tg.map((v,i)=>ventasTG[i]?v/ventasTG[i]:null):null, pctVentasAcum: vAc?s(tg)/vAc:null};
+  };
+  const vTG=R.M['Ventas'][1].map((v,i)=>v+R.M['Ventas'][2][i]);
+  const ventas=blk(R.M['Ventas'][1],R.M['Ventas'][2],null);
+  const cats={}; CATEGORIAS.forEach(c=>cats[c]=blk(R.M[c][1],R.M[c][2],vTG));
+  const g1=R.M['Ventas'][1].map((v,i)=>v-CATEGORIAS.reduce((s,c)=>s+R.M[c][1][i],0));
+  const g2=R.M['Ventas'][2].map((v,i)=>v-CATEGORIAS.reduce((s,c)=>s+R.M[c][2][i],0));
+  const ganancia=blk(g1,g2,vTG);
+  const mesesActivos=R.meses.map((mm,i)=>{
+    const activo=vTG[i]>0 && mm.ym<=hoyYm; const falt=[];
+    if(activo){ ['Compras','Mano de obra'].forEach(r=>{ if(!cats[r].totalGeneral.meses[i]) falt.push(r); }); if(mm.ym===hoyYm) falt.push('(mes en curso)'); }
+    return {col:3+i, mes:mm.mes, ym:mm.ym, activo, parcial:activo&&falt.length>0, rubrosFaltantes:falt, completo:activo&&!falt.length};
+  });
+  return {monthCols:R.meses.map((m,i)=>({col:3+i,mes:m.mes})), mesesActivos, ventas, ganancia, cats, rawRows:[], vivo:true};
+}
+
+/* ---------- Entrada: arma todo en vivo y abre la app ---------- */
+async function abrirFlujoVivo(destino){
+  const btns=document.querySelectorAll('.ffv-btn-txt'); btns.forEach(b=>b.textContent='Leyendo las apps…');
+  await Promise.all([cajaCargar(true), ffvCargarCfg()]);
+  btns.forEach(b=>b.textContent='Ver flujo en vivo');
+  if(FFV.ini==null) FFV.ini=ffvIniEjercicio();
+  ffvAplicar();
+  navegarA(destino||'vivo');
+}
+function ffvAplicar(){
+  const R=ffvCalcular(FFV.ini); FFV.ultimo=R; FFV.activo=true;
+  DATA=ffvADATA(R); VENTAS_DET=null; COMPRAS_DET=null;
+  const E='E'+(FFV.ini-1984);
+  const meta=E+' EN VIVO · leído '+new Date(CAJA.ts||Date.now()).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  _renderDashboard(meta);
+  ffvRender();
+}
+
+/* ---------- Pestaña "Flujo en vivo": la planilla ---------- */
+function ffvRender(){
+  const R=FFV.ultimo; const el=document.getElementById('ffvTabla'); if(!R||!el) return;
+  const sel=document.getElementById('ffvEj');
+  if(sel && !sel.options.length){ const y=ffvIniEjercicio(); [y,y-1].forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent='E'+(a-1984)+' · jul '+a+' → jun '+(a+1); sel.appendChild(o); }); }
+  if(sel) sel.value=FFV.ini;
+  const iva=document.getElementById('ffvSinIva'); if(iva) iva.checked=!!FFV.cfg.params.sinIva;
+  const imp=document.getElementById('ffvImp'); if(imp) imp.value=FFV.cfg.params.impPct;
+  const hoyYm=_cjHoy().slice(0,7);
+  const vTG=R.M['Ventas'][1].map((v,i)=>v+R.M['Ventas'][2][i]);
+  const sum=a=>a.reduce((x,y)=>x+y,0);
+  const f=v=>Math.abs(v)<0.5?'<span class="mute">—</span>':fmtMoneyFull(v);
+  const tip=(S)=>{ const k=Object.keys(S||{}); if(!k.length) return ''; return k.map(x=>x+': $ '+fmtMoneyFull(S[x])).join('\n'); };
+  let h='<thead><tr><th>Rubro</th><th></th><th>Acumulado</th>'+R.meses.map(m=>'<th class="'+(m.ym===hoyYm?'ffv-hoy':'')+'">'+m.mes.slice(0,3)+(m.ym===hoyYm?' ●':'')+'</th>').join('')+'</tr></thead><tbody>';
+  const fila=(nombre,lbl,arr,S,cls)=>'<tr class="'+(cls||'')+'"><td>'+nombre+'</td><td class="mute">'+lbl+'</td><td>'+f(sum(arr))+'</td>'+arr.map((v,i)=>{ const t=S?tip(S[i]):''; const man=S&&S[i]&&S[i]['Carga manual']; return '<td class="'+(R.meses[i].ym===hoyYm?'ffv-hoy ':'')+(v<0?'neg':'')+'"'+(t?' title="'+_cjEsc(t)+'"':'')+'>'+f(v)+(man?'<sup class="ffv-man">m</sup>':'')+'</td>'; }).join('')+'</tr>';
+  const bloque=(r,nombre)=>{
+    const t1=R.M[r][1], t2=R.M[r][2], tg=t1.map((v,i)=>v+t2[i]);
+    let s=fila('<b>'+nombre+'</b>','Total 1',t1,R.S[r][1],'ffv-first')+fila('','Total 2',t2,R.S[r][2])+fila('','<b>General</b>',tg,null,'ffv-tg');
+    if(r!=='Ventas') s+='<tr class="ffv-pct"><td></td><td class="mute">% ventas</td><td>'+(sum(vTG)?fmtPct(sum(tg)/sum(vTG)):'—')+'</td>'+tg.map((v,i)=>'<td>'+(vTG[i]?fmtPct(v/vTG[i]):'')+'</td>').join('')+'</tr>';
+    return s;
+  };
+  h+=bloque('Ventas','VENTAS');
+  CATEGORIAS.forEach(c=>{ h+=bloque(c,c==='Energia'?'Energía':c==='Servicios y mas'?'Servicios y más':c); });
+  const g1=R.M['Ventas'][1].map((v,i)=>v-CATEGORIAS.reduce((s,c)=>s+R.M[c][1][i],0));
+  const g2=R.M['Ventas'][2].map((v,i)=>v-CATEGORIAS.reduce((s,c)=>s+R.M[c][2][i],0));
+  const gt=g1.map((v,i)=>v+g2[i]);
+  h+=fila('<b>GANANCIA</b>','Total 1',g1,null,'ffv-first ffv-gan')+fila('','Total 2',g2,null,'ffv-gan')+fila('','<b>General</b>',gt,null,'ffv-tg ffv-gan');
+  h+='<tr class="ffv-pct ffv-gan"><td></td><td class="mute">% ventas</td><td>'+(sum(vTG)?fmtPct(sum(gt)/sum(vTG)):'—')+'</td>'+gt.map((v,i)=>'<td class="'+(v<0?'neg':'')+'">'+(vTG[i]?fmtPct(v/vTG[i]):'')+'</td>').join('')+'</tr>';
+  el.innerHTML=h+'</tbody>';
+  const av=document.getElementById('ffvAvisos');
+  const sinRev=Object.keys(FFV.provSum||{}).filter(p=>!(FFV.cfg.rubrosProv||{})[p]).length;
+  const lines=R.avisos.slice();
+  if(sinRev) lines.push(sinRev+' proveedores con rubro asignado automáticamente: revisalos en "Rubros de proveedores".');
+  av.innerHTML=lines.length?'<b>A revisar:</b><br>'+lines.map(_cjEsc).join('<br>'):'';
+  document.getElementById('ffvMeta').textContent='Leído '+new Date(CAJA.ts).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' · ● mes en curso, al día de hoy · pasá el mouse sobre un número para ver de dónde sale';
+}
+
+async function ffvCambiarEj(v){ FFV.ini=+v; ffvAplicar(); navegarA('vivo'); }
+async function ffvParam(k,v){
+  const ok=await ffvGuardarCfg(c=>{ c.params[k]=v; });
+  if(ok){ ffvAplicar(); navegarA('vivo'); }
+}
+
+/* ---------- Modal: rubros de proveedores ---------- */
+function ffvAbrirRubros(){
+  const provs=Array.from(new Set([...(CAJA.src.cheques&&CAJA.src.cheques.prov||[]), ...Object.keys(FFV.provSum||{})])).sort((a,b)=>(FFV.provSum[b]||0)-(FFV.provSum[a]||0)||a.localeCompare(b));
+  const c=FFV.cfg.rubrosProv||{};
+  const filas=provs.map(p=>{ const r=ffvRubroDe(p); return '<tr><td>'+_cjEsc(p)+(c[p]?'':' <span class="ffv-auto">auto</span>')+'</td><td>'+(FFV.provSum[p]?fmtMoneyFull(FFV.provSum[p]):'<span class="mute">—</span>')+'</td><td><select data-prov="'+_cjEsc(p)+'">'+FFV_RUBROS.map(x=>'<option value="'+x+'"'+(x===r?' selected':'')+'>'+FFV_RUBRO_LBL[x]+'</option>').join('')+'</select></td></tr>'; }).join('');
+  ffvModal('Rubros de proveedores',
+    '<p class="cj-nota" style="margin:0 0 12px">Rubro de cada proveedor de Cheques. "No suma" es para los que ya entran por otra app (repuestos y servicios de mantenimiento van por la app Mantenimiento). El importe es lo facturado en el ejercicio, con IVA.</p>'+
+    '<div class="tbl-wrap" style="max-height:55vh;overflow:auto"><table class="tbl"><thead><tr><th>Proveedor</th><th>Facturado</th><th>Rubro</th></tr></thead><tbody>'+filas+'</tbody></table></div>',
+    async(box)=>{ const nuevo={}; box.querySelectorAll('select[data-prov]').forEach(s=>nuevo[s.dataset.prov]=s.value);
+      const ok=await ffvGuardarCfg(cfg=>{ Object.assign(cfg.rubrosProv,nuevo); }); if(ok){ ffvAplicar(); navegarA('vivo'); } return ok; });
+}
+
+/* ---------- Modal: cargas manuales ---------- */
+const FFV_MANUALES=[['Energia',1,'Energía 1 (Edesur + EDEN)'],['Transporte',1,'Transporte 1'],['Transporte',2,'Transporte 2'],['Otros',1,'Otros 1'],['Otros',2,'Otros 2'],['Servicios y mas',1,'Servicios y más 1'],['Servicios y mas',2,'Servicios y más 2'],['Impuestos',1,'Impuestos 1 (además del %)'],['Compras',1,'Compras 1 (ajuste)'],['Compras',2,'Compras 2 (ajuste)'],['Ventas',1,'Ventas 1 (ajuste)'],['Ventas',2,'Ventas 2 (ajuste)']];
+function ffvAbrirManuales(){
+  const meses=ffvMeses(FFV.ini); const man=FFV.cfg.manual||{};
+  const val=(r,c,ym)=>{ const v=((man[r]||{})[c]||{})[ym]; return v?Math.round(v):''; };
+  let h='<p class="cj-nota" style="margin:0 0 12px">Lo que todavía no está en ninguna app. Se suma a lo que viene de las apps. Importes en pesos, sin IVA en el circuito 1. Un ajuste puede ser negativo.</p><div class="tbl-wrap" style="max-height:58vh;overflow:auto"><table class="tbl ffv-man-tbl"><thead><tr><th>Rubro</th>'+meses.map(m=>'<th>'+m.mes.slice(0,3)+'</th>').join('')+'</tr></thead><tbody>';
+  FFV_MANUALES.forEach(([r,c,lbl])=>{ h+='<tr><td>'+lbl+'</td>'+meses.map(m=>'<td><input inputmode="decimal" data-r="'+r+'" data-c="'+c+'" data-ym="'+m.ym+'" value="'+val(r,c,m.ym)+'"></td>').join('')+'</tr>'; });
+  h+='</tbody></table></div>';
+  ffvModal('Cargas manuales · E'+(FFV.ini-1984), h, async(box)=>{
+    const vals=[]; box.querySelectorAll('input[data-r]').forEach(i=>vals.push([i.dataset.r,i.dataset.c,i.dataset.ym,i.value.trim()]));
+    const ok=await ffvGuardarCfg(cfg=>{ vals.forEach(([r,c,ym,v])=>{ cfg.manual[r]=cfg.manual[r]||{}; cfg.manual[r][c]=cfg.manual[r][c]||{}; const n=_cjN(v); if(v===''||!n) delete cfg.manual[r][c][ym]; else cfg.manual[r][c][ym]=n; }); });
+    if(ok){ ffvAplicar(); navegarA('vivo'); } return ok; }, true);
+}
+
+function ffvModal(titulo, html, onGuardar, ancho){
+  let ov=document.getElementById('ffvModal'); if(ov) ov.remove();
+  ov=document.createElement('div'); ov.id='ffvModal'; ov.className='ffv-ov';
+  ov.innerHTML='<div class="ffv-box'+(ancho?' ancho':'')+'"><div class="ffv-box-head"><h3 class="card-title" style="color:var(--ink)">'+titulo+'</h3><button class="btn" onclick="document.getElementById(\'ffvModal\').remove()">✕</button></div><div class="ffv-box-body">'+html+'</div><div class="ffv-box-foot"><button class="btn" onclick="document.getElementById(\'ffvModal\').remove()">Cancelar</button> <button class="btn accent" id="ffvGuardar"><span class="dot"></span> Guardar</button></div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('#ffvGuardar').onclick=async()=>{ const b=ov.querySelector('#ffvGuardar'); b.disabled=true; b.lastChild.textContent=' Guardando…'; const ok=await onGuardar(ov); if(ok) ov.remove(); else { b.disabled=false; b.lastChild.textContent=' Guardar'; } };
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -3024,6 +3325,7 @@ async function _createBin(initial){
 
 async function syncPush(){
   if(!DATA){ alert('Cargá primero el flujo de fondos antes de sincronizar.'); return; }
+  if(DATA.vivo){ alert('El flujo en vivo no hace falta sincronizarlo: se arma solo con los datos de las apps en cualquier equipo.\n\n"Sincronizar" es para el análisis que sale de los Excel.'); return; }
   const btn=document.getElementById('syncBtn'); if(btn) btn.disabled=true;
   _syncStatus('Sincronizando…');
   try{
@@ -3077,7 +3379,7 @@ async function syncLoad(silent){
   try{
     const rec = await _fetchCloud();
     if(!rec || !rec.data){ if(!silent) alert('No hay un análisis sincronizado todavía.'); return; }
-    DATA       = rec.data;
+    DATA       = rec.data; FFV.activo=false;
     VENTAS_DET = rec.ventasDet || null;
     COMPRAS_DET= rec.comprasDet || null;
     if(rec.fijoPct) FIJO_PCT = {...FIJO_DEFAULT, ...rec.fijoPct};
