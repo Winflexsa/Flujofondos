@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <!-- ===== PWA / instalable en tablet ===== -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#1a472a">
@@ -41,6 +42,19 @@
   --shadow-card:0 1px 3px rgba(26,25,22,0.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
+/* ===== 00 · Caja diaria ===== */
+body.sin-excel .nav-item:not([data-tab="caja"]){display:none}
+.cj-fuentes{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);margin:-14px 0 20px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.cj-src.ok{color:var(--moss-deep)} .cj-src.err{color:var(--oxide-deep)} .cj-src.warn{color:var(--mustard)}
+.cj-sel{font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--ink);background:var(--paper);border-radius:6px}
+.cj-nota{font-size:12px;color:var(--ink-mute);margin-top:12px;line-height:1.5}
+.cj-leyenda{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);display:flex;align-items:center;gap:6px}
+.cj-l{display:inline-block;width:12px;height:8px;border-radius:2px;margin-left:8px}
+.cj-l-saldo{background:#1a472a}.cj-l-in{background:rgba(46,158,91,.55)}.cj-l-out{background:rgba(178,59,46,.55)}
+.cj-falta{background:var(--paper-2)} .cj-falta p{font-size:13px;color:var(--ink-soft);margin-top:6px}
+.cj-entrada{max-width:640px;width:100%;margin:0 auto 22px;display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--paper);border:1px solid var(--rule);border-left:4px solid var(--oxide);border-radius:10px;box-shadow:var(--shadow-card)}
+.cj-entrada .cloud-txt{flex:1}
+@media(max-width:640px){.cj-entrada{flex-wrap:wrap}}
 html,body{background:var(--canvas);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 body{min-height:100vh;background-image:radial-gradient(circle at 18% 8%, rgba(46,158,91,0.05) 0%, transparent 48%),radial-gradient(circle at 84% 86%, rgba(26,71,42,0.045) 0%, transparent 52%)}
 
@@ -294,6 +308,14 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
       </div>
       <button class="btn accent" onclick="syncLoad()"><span class="dot"></span> Ver análisis</button>
     </div>
+    <div class="cj-entrada">
+      <div class="cloud-ico">$</div>
+      <div class="cloud-txt">
+        <div class="cloud-title">Caja diaria en vivo</div>
+        <div class="cloud-meta">Bancos, cheques, cobranzas, proveedores y sueldos, leídos de las apps. No necesita archivos.</div>
+      </div>
+      <button class="btn accent" onclick="abrirCaja()"><span class="dot"></span> Ver caja diaria</button>
+    </div>
     <div class="dropzone" id="dropzone">
       <div class="dropzone-eyebrow">— Subir archivos mensuales</div>
       <h2 class="dropzone-title">Arrastrá tus <em>3 archivos</em><br>o seleccionalos uno por uno</h2>
@@ -367,6 +389,7 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
 </header>
 
 <nav class="nav">
+  <button class="nav-item" data-tab="caja"><span class="num">00</span>Caja diaria</button>
   <button class="nav-item active" data-tab="resumen"><span class="num">01</span>Resumen ejecutivo</button>
   <button class="nav-item" data-tab="evolucion"><span class="num">02</span>Evolución mensual</button>
   <button class="nav-item" data-tab="estructura"><span class="num">03</span>Estructura de costos</button>
@@ -858,6 +881,132 @@ main{padding:32px 40px 80px;max-width:1480px;margin:0 auto}
       <div class="divider"></div>
       <p style="font-size:13px;color:var(--ink-mute)"><em>El análisis es una lectura, no una verdad absoluta.</em> Claude no conoce el contexto externo (mercado, clientes, decisiones pasadas), solo lo que está en el Excel.</p>
     </div>
+  </div>
+</section>
+
+<!-- ============== 00 · CAJA DIARIA (en vivo, lee las apps) ============== -->
+<section class="section" id="sec-caja">
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">— Vista 00 · en vivo</div>
+      <h2 class="section-title">Caja <em>diaria</em></h2>
+      <p class="section-sub">Lee en el momento Cheques, Seguimiento Cobranzas, Caja 2 y Horas. No usa los Excel ni escribe nada en las otras apps.</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="cjHorizonte" class="cj-sel" onchange="cajaRender()" title="Días de proyección">
+        <option value="30">30 días</option>
+        <option value="60" selected>60 días</option>
+        <option value="90">90 días</option>
+      </select>
+      <button class="btn" onclick="cajaCargar(true)"><span class="dot"></span> <span id="cjBtnTxt">Actualizar</span></button>
+      <button class="btn" id="cjBtnExcel" onclick="cajaIrAnalisis()">📂 Análisis mensual</button>
+    </div>
+  </div>
+
+  <div id="cjFuentes" class="cj-fuentes">Cargando datos de las apps…</div>
+
+  <div class="kpi-grid cols-4">
+    <div class="kpi">
+      <span class="kpi-label">Bancos hoy</span>
+      <div class="kpi-value" id="cjKBancosW"><span class="currency">$</span><span id="cjKBancos">—</span></div>
+      <div class="kpi-foot"><span id="cjKBancosFoot">Último saldo de cada cuenta</span></div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Entra en <span class="cjH">60</span> días</span>
+      <div class="kpi-value pos"><span class="currency">$</span><span id="cjKIn">—</span></div>
+      <div class="kpi-foot"><span id="cjKInFoot">Cheques en cartera + cobros a vencer</span></div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Sale en <span class="cjH">60</span> días</span>
+      <div class="kpi-value neg"><span class="currency">$</span><span id="cjKOut">—</span></div>
+      <div class="kpi-foot"><span id="cjKOutFoot">Cheques propios + facturas + sueldos</span></div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Saldo proyectado</span>
+      <div class="kpi-value" id="cjKFinW"><span class="currency">$</span><span id="cjKFin">—</span></div>
+      <div class="kpi-foot"><span id="cjKFinFoot">Mínimo: —</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-eyebrow">Circuito 1 · bancos</div>
+        <h3 class="card-title">Saldo proyectado día por día</h3>
+      </div>
+      <div class="cj-leyenda"><span class="cj-l cj-l-saldo"></span>Saldo <span class="cj-l cj-l-in"></span>Entra <span class="cj-l cj-l-out"></span>Sale</div>
+    </div>
+    <div style="position:relative;height:320px"><canvas id="cjChart"></canvas></div>
+    <p class="cj-nota" id="cjNotaChart">—</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-eyebrow">Circuito 1 · bancos</div>
+        <h3 class="card-title">Proyección por semana</h3>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="cjTblSemanas">
+        <thead><tr><th>Semana</th><th>Cheques en cartera</th><th>Cobros clientes</th><th>Cheques propios</th><th>Facturas proveedores</th><th>Sueldos (recibo)</th><th>Neto</th><th>Saldo</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">Fuera de la proyección</div>
+          <h3 class="card-title">Vencido</h3>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="cjTblVencido">
+          <thead><tr><th>Concepto</th><th>Cant.</th><th>Importe</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="cj-nota">Lo vencido no se suma a la proyección: no se sabe cuándo entra o sale.</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">Circuito 2</div>
+          <h3 class="card-title">Efectivo y Caja 2</h3>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="cjTblC2">
+          <thead><tr><th>Concepto</th><th>Importe</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="cj-nota">No hay arqueo de efectivo cargado: se muestra lo que entra y sale, no el saldo de caja.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-eyebrow">Real · últimos 30 días</div>
+        <h3 class="card-title">Movimientos por día</h3>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="cjTblMov">
+        <thead><tr><th>Fecha</th><th>Cobros C1</th><th>Cobros Caja 2</th><th>Pagos prov. C1</th><th>Pagos prov. C2</th><th>Sueldos recibo</th><th>Sueldos por fuera</th><th>Neto C1</th><th>Neto C2</th></tr></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="card cj-falta">
+    <div class="card-eyebrow">Todavía no entra en este flujo</div>
+    <p>Impuestos (IVA, IIBB, Ganancias, F931), Edesur, fletes, servicios y gastos sin factura de proveedor; arqueo de efectivo; retenciones que sufren los clientes. Las facturas de proveedores entran solo si están cargadas en Cheques.</p>
   </div>
 </section>
 
@@ -2267,7 +2416,7 @@ function renderMarkdown(t){
    TABS
    ============================================================ */
 // ── NAVEGACIÓN POR VENTANAS (mismo sistema que Sueldos/Horas) ──────
-const MODULOS={resumen:'01 · Resumen ejecutivo',evolucion:'02 · Evolución mensual',estructura:'03 · Estructura de costos',byn:'04 · Blanca vs Negra',equilibrio:'05 · Punto de equilibrio',detalle:'06 · Detalle mensual',productos:'07 · Por producto',ia:'08 · Conclusiones IA'};
+const MODULOS={caja:'00 · Caja diaria',resumen:'01 · Resumen ejecutivo',evolucion:'02 · Evolución mensual',estructura:'03 · Estructura de costos',byn:'04 · Blanca vs Negra',equilibrio:'05 · Punto de equilibrio',detalle:'06 · Detalle mensual',productos:'07 · Por producto',ia:'08 · Conclusiones IA'};
 const _paramTab=(function(){try{return new URLSearchParams(location.search).get('tab');}catch(_){return null;}})();
 const MODULO_VENTANA=(_paramTab&&MODULOS[_paramTab])?_paramTab:null;
 const ES_HIJA=!!MODULO_VENTANA;
@@ -2278,6 +2427,7 @@ function navegarA(tab){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   const sec=document.getElementById('sec-'+tab); if(sec)sec.classList.add('active');
   setTimeout(()=>Object.values(CHARTS).forEach(c=>{try{c.resize()}catch(_){}}),60);
+  if(tab==='caja') cajaCargar(false);
 }
 function abrirModulo(tab){
   if(!MODULOS[tab])return;
@@ -2298,6 +2448,7 @@ function _aplicarVentanaModulo(){
   if(!ES_HIJA)return;
   document.body.classList.add('modo-modulo');
   try{document.title=(MODULOS[MODULO_VENTANA]||'')+' · Flujo de Fondos';}catch(e){}
+  if(MODULO_VENTANA==='caja'){ abrirCaja(); return; }
   navegarA(MODULO_VENTANA);
   if(WF_BIN){ try{ syncLoad(true).then(()=>navegarA(MODULO_VENTANA)).catch(()=>{}); }catch(_){ } }
 }
@@ -2371,6 +2522,7 @@ function updateSlot(tipo, fileName){
 
 function entrarApp(){
   if(!DATA){ showError('Falta el flujo de fondos (archivo principal)'); return; }
+  document.body.classList.remove('sin-excel');
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('appState').classList.remove('hidden');
   // Meta
@@ -2429,6 +2581,362 @@ dz.addEventListener('drop', e=>{
   e.preventDefault(); dz.classList.remove('drag');
   if(e.dataTransfer.files.length) handleFiles(Array.from(e.dataTransfer.files));
 });
+
+
+/* ════════════════════════════════════════════════════════════
+   00 · CAJA DIARIA — lee en vivo las apps Winflex (SOLO LECTURA)
+   Cheques (bancos, cartera, OPs, facturas de proveedores) ·
+   Seguimiento Cobranzas (facturas a cobrar, cobros) ·
+   Caja 2 (cobros en efectivo) · Horas (sueldos recibo / por fuera)
+   Nunca hace PUT/POST sobre estos bins.
+   ════════════════════════════════════════════════════════════ */
+const CAJA_BINS = {
+  cheques:   {id:'69c6b405aa77b81da9277f9b', nombre:'Cheques'},
+  cobranzas: {id:'6a0b2b196877513b27912597', nombre:'Seguimiento Cobranzas'},
+  caja2:     {id:'69c5b073c3097a1dd563e30a', nombre:'Caja 2'},
+  horas:     {id:'6a21d35df5f4af5e29b9f410', nombre:'Horas'}
+};
+let CAJA = {cargando:false, ts:0, src:{}, err:{}};
+
+function _cjHoy(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function _cjAdd(iso,n){ const x=new Date(String(iso).slice(0,10)+'T12:00:00'); x.setDate(x.getDate()+(+n||0)); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); }
+function _cjIso(v){ if(!v) return ''; const s=String(v).trim(); let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[1]+'-'+m[2]+'-'+m[3];
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/); if(m){ const y=m[3].length===2?'20'+m[3]:m[3]; return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'); } return ''; }
+function _cjN(v){ if(typeof v==='number') return isFinite(v)?v:0; if(v==null||v==='') return 0;
+  let s=String(v).replace(/[^\d,.\-]/g,''); if(s.includes(',')&&s.includes('.')) s=s.replace(/\./g,'').replace(',','.'); else if(s.includes(',')) s=s.replace(',','.');
+  const n=parseFloat(s); return isFinite(n)?n:0; }
+function _cjFmtD(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return d+'/'+m+'/'+y.slice(2); }
+function _cjDias(a,b){ return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5); }
+function _cjEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const _cjM = n => (n<0?'-$ ':'$ ')+fmtMoneyFull(Math.abs(n));
+const _cjMs = n => Math.abs(n)<0.5 ? '<span class="mute">—</span>' : _cjM(n);
+
+async function _cjFetch(binId){
+  const r = await fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest', {headers:{'X-Master-Key':WF_MASTER_KEY,'X-Bin-Meta':'false'}});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d = await r.json();
+  return (d && d.record && !Array.isArray(d)) ? d.record : d;
+}
+
+async function cajaCargar(forzar){
+  if(CAJA.cargando) return;
+  if(!forzar && CAJA.ts && Date.now()-CAJA.ts < 5*60*1000){ cajaRender(); return; }
+  CAJA.cargando = true;
+  const b=document.getElementById('cjBtnTxt'); if(b) b.textContent='Leyendo…';
+  const claves = Object.keys(CAJA_BINS);
+  const res = await Promise.allSettled(claves.map(k=>_cjFetch(CAJA_BINS[k].id)));
+  res.forEach((r,i)=>{ const k=claves[i];
+    if(r.status==='fulfilled'){ CAJA.src[k]=r.value; delete CAJA.err[k]; }
+    else { CAJA.err[k]=(r.reason&&r.reason.message)||'error'; }
+  });
+  CAJA.ts = Date.now(); CAJA.cargando = false;
+  if(b) b.textContent='Actualizar';
+  cajaRender();
+}
+
+/* ---------- Normalización por app ---------- */
+function _cjCheques(rec){
+  if(!rec) return null;
+  const FM={fr:'fecha_recibo',im:'importe',fc:'fecha_cobro',bn:'banco',pl:'plaza',nu:'numero',cu:'cuit',re:'recibo',cl:'cliente',es:'estado',de:'destino',fa:'fecha_aplicado',ca:'caja'};
+  const EM={no:'nombre',cu:'cuit',im:'importe',nu:'numero',fp:'fecha_pago',fc:'fecha_cobro',es:'estado',op:'op_id',de:'destino'};
+  const FF={n:'numero',f:'fecha',p:'proveedor',c:'condiciones',v:'vencimiento',t:'total',pg:'pagos',cr:'creada',an:'anulada'};
+  const PF={o:'op_id',f:'fecha',m:'monto'};
+  const ex=(arr,M)=>(arr||[]).map(o=>{const r={};for(const k in o)r[M[k]||k]=o[k];return r;});
+  const cheques=ex(rec.c,FM), echeqs=ex(rec.e,EM);
+  const facturas=ex(rec.fac,FF).map(f=>{ f.pagos=(f.pagos||[]).map(p=>{const r={};for(const k in p)r[PF[k]||k]=p[k];return r;}); return f; });
+  return {cheques, echeqs, facturas, ops:rec.ops||[], bancos:rec.bk||[]};
+}
+function _cjCobrPendiente(rec){
+  // Misma regla que Seguimiento Cobranzas / Cheques: vencimiento por condición del cliente,
+  // saldo neto de NC, fuera de cartera morosos / juicio / incobrables.
+  const clientes=rec.clientes||[], comps=rec.comprobantes||rec.facturas||[];
+  const cli={}; clientes.forEach(c=>cli[c.id]=c);
+  const isNC=f=>String(f.tipo||'').startsWith('NC_');
+  const normNum=s=>String(s||'').replace(/\D/g,'').replace(/^0+/,'');
+  const comproNum=s=>{const p=String(s||'').trim().split('-');return normNum(p[p.length-1]);};
+  const comproPto=s=>{const raw=String(s||'').trim(),i=raw.lastIndexOf('-');return i<0?'':normNum(raw.slice(0,i));};
+  const ncApuntaA=(nc,fac)=>{ if(!isNC(nc)||isNC(fac)||!nc.asociadaNum||nc.clienteId!==fac.clienteId) return false;
+    const an=comproNum(nc.asociadaNum),fn=comproNum(fac.numero); if(!an||an!==fn) return false;
+    const ap=comproPto(nc.asociadaNum),fp=normNum(fac.ptoVenta); return !(ap&&fp&&ap!==fp); };
+  const cond=f=>{const c=cli[f.clienteId]||{};
+    if(f.condicionOverride!=null&&f.condicionOverride!=='') return {dias:+f.condicionOverride,modo:f.modoOverride||c.modoVencimiento||'factura'};
+    if(f.tipo==='FC_X'&&c.condicionDiasFcX!=null) return {dias:+c.condicionDiasFcX,modo:c.modoVencimientoFcX||c.modoVencimiento||'factura'};
+    return {dias:(c.condicionDias!=null?+c.condicionDias:30),modo:c.modoVencimiento||'factura'};};
+  const vto=f=>{ if(f.vencManual&&f.fechaVencimiento) return String(f.fechaVencimiento).slice(0,10);
+    const k=cond(f); const base=(k.modo==='remito'&&f.fechaRemito)?f.fechaRemito:(f.fecha||_cjHoy()); return _cjAdd(String(base).slice(0,10),k.dias); };
+  const cobrado=f=>{const imp=+f.importe||0; if(f.cobrado!=null) return +f.cobrado||0; if(f.saldo!=null) return Math.max(0,imp-(+f.saldo||0)); return 0;};
+  const ncAplicada=fac=>comps.filter(x=>ncApuntaA(x,fac)).reduce((s,x)=>s+Math.max(0,(+x.importe||0)-cobrado(x)),0);
+  const out=[];
+  comps.forEach(f=>{
+    if(isNC(f)) return;
+    const saldo=Math.max(0,Math.max(0,(+f.importe||0)-cobrado(f))-ncAplicada(f));
+    if(saldo<=0.5) return;
+    const c=cli[f.clienteId]||{};
+    const fuera=f.incobrable?'incobrable':((c.situacion==='moroso'||c.situacion==='juicio')?c.situacion:null);
+    out.push({cliente:c.razonSocial||'',tipo:f.tipo||'',vto:vto(f),saldo,fuera});
+  });
+  return out;
+}
+function _cjCobrReales(rec){
+  // Cobros ya registrados: pagos[] de cada comprobante
+  const out=[];
+  (rec.comprobantes||rec.facturas||[]).forEach(f=>{
+    (f.pagos||[]).forEach(p=>{ const fe=_cjIso(p.fecha); const m=_cjN(p.monto); if(fe&&m) out.push({fecha:fe, monto:m}); });
+  });
+  return out;
+}
+function _cjEfectivoSaldo(rec){
+  // Cuenta corriente en efectivo (Cobranzas › Efectivo): remitos (+) y pagos (−).
+  // Los remitos "pendientes de entrega" no suman a lo que hay que cobrar.
+  let s=0, n=0;
+  (rec.efectivo||[]).forEach(m=>{ const imp=_cjN(m.importe); if(imp>0 && m.entregado===false) return; s+=imp; n++; });
+  return {saldo:s, n};
+}
+function _cjHoras(rec){
+  const out={resumenes:[], pagados:[], diaQ1:18, diaQ2:5};
+  if(!rec) return out;
+  const cm=rec.controlMensual||{};
+  Object.keys(cm).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort().forEach(ym=>{ if(cm[ym]&&cm[ym].resumen) out.resumenes.push(cm[ym].resumen); });
+  // Sueldos de recibo pagados (historial): neto total + fecha de pago
+  const dQ1=[], dQ2=[];
+  (rec.historial||[]).forEach(q=>{
+    if(!q||!q.key) return;
+    let neto=null, fp='';
+    if(q.esFinal){ return; }
+    if(/-MES$/.test(q.key)){ neto=_cjN(q.totalNeto); fp=_cjIso(q.fechaPago); }
+    else {
+      fp=_cjIso((q.recibosLote&&q.recibosLote.fechaPago)||q.fechaPago||'');
+      let snap=q.liquidacionSnapshot;
+      if(!snap&&q.liqZ&&typeof LZString!=='undefined'){ try{ snap=JSON.parse(LZString.decompressFromBase64(q.liqZ)); }catch(_){ } }
+      if(snap){ neto=_cjN(snap.totalNeto); if(!fp) fp=_cjIso(snap.fechaPago); }
+    }
+    if(!fp||!neto) return;
+    const m=q.key.match(/^(\d{4}-\d{2})-(Q1|Q2|MES)/);
+    out.pagados.push({fecha:fp, neto, key:q.key, ym:m?m[1]:'', parte:m?m[2]:''});
+    const dia=+fp.slice(8,10);
+    if(m&&m[2]==='Q1') dQ1.push(dia); else if(m) dQ2.push(dia);
+  });
+  const mediana=a=>{ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; };
+  out.diaQ1 = mediana(dQ1.slice(-6)) || 18;
+  out.diaQ2 = mediana(dQ2.slice(-12)) || 5;
+  return out;
+}
+
+/* ---------- Cálculo ---------- */
+function cajaCalcular(H){
+  const hoy=_cjHoy(), hasta=_cjAdd(hoy,H);
+  const ch=_cjCheques(CAJA.src.cheques), cob=CAJA.src.cobranzas, c2=CAJA.src.caja2, ho=_cjHoras(CAJA.src.horas);
+  const R={hoy, hasta, H, dias:{}, bancos:null, venc:[], c2:[], mov:{}, avisos:[], sueldoRef:null};
+  const dia=f=>(R.dias[f]=R.dias[f]||{cart:0,cob:0,prop:0,fac:0,sue:0});
+  const enRango=f=>f>=hoy && f<=hasta;
+
+  // Bancos: último saldo por cuenta
+  if(ch){
+    const ult={};
+    ch.bancos.forEach(b=>{ const fe=_cjIso(b.fecha); if(!fe) return; const k=b.banco||'?';
+      if(!ult[k] || fe>ult[k].fecha || (fe===ult[k].fecha && (b.ts||0)>(ult[k].ts||0))) ult[k]={fecha:fe, saldo:_cjN(b.saldo), ts:b.ts||0}; });
+    const ks=Object.keys(ult);
+    if(ks.length){
+      const total=ks.reduce((s,k)=>s+ult[k].saldo,0);
+      const masViejo=ks.reduce((m,k)=>ult[k].fecha<m?ult[k].fecha:m, '9999-12-31');
+      R.bancos={total, cuentas:ult, masViejo, antig:_cjDias(masViejo,hoy)};
+      if(R.bancos.antig>3) R.avisos.push('El saldo de bancos más viejo es del '+_cjFmtD(masViejo)+' ('+R.bancos.antig+' días).');
+    } else R.avisos.push('No hay saldos de bancos cargados en Cheques › Bancos.');
+
+    // Cheques de terceros en cartera (C1 → bancos; C2 → efectivo)
+    let c2Cart=0, c2CartN=0, cartVieja=0;
+    ch.cheques.filter(c=>c.estado==='En cartera').forEach(c=>{
+      const imp=_cjN(c.importe); let fe=_cjIso(c.fecha_cobro)||hoy;
+      if(c.caja==='caja2'){ c2Cart+=imp; c2CartN++; return; }
+      if(fe<hoy){ cartVieja+=imp; fe=hoy; }
+      if(fe<=hasta) dia(fe).cart+=imp;
+    });
+    ch.echeqs.filter(e=>e.estado!=='usado').forEach(e=>{
+      const imp=_cjN(e.importe); let fe=_cjIso(e.fecha_cobro)||hoy;
+      if(fe<hoy){ cartVieja+=imp; fe=hoy; }
+      if(fe<=hasta) dia(fe).cart+=imp;
+    });
+    if(cartVieja>0.5) R.avisos.push('Hay '+_cjM(cartVieja)+' en cheques / echeqs con fecha ya cumplida que figuran en cartera: se suman hoy.');
+    R.c2.push(['Cheques de Caja 2 en cartera ('+c2CartN+')', c2Cart]);
+
+    // Cheques propios a debitar
+    ch.ops.forEach(o=>{ if(o.estado==='anulada') return;
+      (o.propios||[]).forEach(p=>{ const fe=_cjIso(p.fecha_cobro); if(fe && enRango(fe)) dia(fe).prop+=_cjN(p.importe); }); });
+
+    // Facturas de proveedores impagas
+    let fv=0, fvN=0;
+    ch.facturas.forEach(f=>{ if(f.anulada) return;
+      const saldo=_cjN(f.total)-(f.pagos||[]).reduce((s,p)=>s+_cjN(p.monto),0);
+      if(saldo<=0.01) return;
+      const fe=_cjIso(f.vencimiento)||_cjIso(f.fecha)||hoy;
+      if(fe<hoy){ fv+=saldo; fvN++; } else if(fe<=hasta) dia(fe).fac+=saldo;
+    });
+    R.venc.push(['Facturas de proveedores vencidas', fvN, fv]);
+
+    // Real: pagos a proveedores por OP (tipo 1 = bancos, tipo 2 = Caja 2)
+    ch.ops.forEach(o=>{ if(o.estado==='anulada') return; const fe=_cjIso(o.fecha); if(!fe) return;
+      const tot=_cjN(o.total_pagado)||_cjN(o.total_facturas);
+      const m=(R.mov[fe]=R.mov[fe]||{c1:0,c2:0,p1:0,p2:0,s1:0,s2:0});
+      if(String(o.tipo)==='2') m.p2+=tot; else m.p1+=tot; });
+  }
+
+  // Cobros a recibir de clientes (Seguimiento Cobranzas)
+  if(cob){
+    let cv=0, cvN=0, cf=0, cfN=0;
+    _cjCobrPendiente(cob).forEach(f=>{
+      if(f.fuera){ cf+=f.saldo; cfN++; return; }
+      if(f.vto<hoy){ cv+=f.saldo; cvN++; } else if(f.vto<=hasta) dia(f.vto).cob+=f.saldo;
+    });
+    R.venc.unshift(['Facturas de clientes vencidas', cvN, cv]);
+    R.venc.push(['Morosos, en juicio e incobrables', cfN, cf]);
+    _cjCobrReales(cob).forEach(p=>{ const m=(R.mov[p.fecha]=R.mov[p.fecha]||{c1:0,c2:0,p1:0,p2:0,s1:0,s2:0}); m.c1+=p.monto; });
+    const ef=_cjEfectivoSaldo(cob);
+    R.c2.unshift(['Cuenta corriente en efectivo a cobrar (Cobranzas › Efectivo)', ef.saldo]);
+  }
+
+  // Cobros en efectivo (Caja 2)
+  if(c2){
+    let mesAct=0; const ym=hoy.slice(0,7);
+    (c2.records||[]).forEach(r=>{ const fe=_cjIso(r.fecha); const t=_cjN(r.total); if(!fe||!t) return;
+      const m=(R.mov[fe]=R.mov[fe]||{c1:0,c2:0,p1:0,p2:0,s1:0,s2:0}); m.c2+=t; if(fe.slice(0,7)===ym) mesAct+=t; });
+    R.c2.push(['Cobrado en Caja 2 este mes', mesAct]);
+  }
+
+  // Sueldos: real (historial) + estimado futuro (último resumen del Control mensual)
+  if(CAJA.src.horas){
+    const resPorYm={}; ho.resumenes.forEach(r=>resPorYm[r.periodo]=r);
+    ho.pagados.forEach(p=>{
+      const m=(R.mov[p.fecha]=R.mov[p.fecha]||{c1:0,c2:0,p1:0,p2:0,s1:0,s2:0}); m.s1+=p.neto;
+      const r=resPorYm[p.ym]; if(!r) return;
+      // por fuera del período, en la misma fecha que el recibo: Q1 → q1; Q2 → q2; MES → mensual + extra
+      if(p.parte==='Q1') m.s2+=_cjN(r.q1&&r.q1.fuera)+_cjN(r.q1&&r.q1.vales);
+      else if(p.parte==='Q2') m.s2+=_cjN(r.q2&&r.q2.fuera)+_cjN(r.q2&&r.q2.vales);
+      else if(p.parte==='MES') m.s2+=_cjN(r.mensual&&r.mensual.fuera)+_cjN(r.mensual&&r.mensual.vales)+_cjN(r.extra&&r.extra.fuera);
+    });
+    const ref=ho.resumenes.length?ho.resumenes[ho.resumenes.length-1]:null;
+    if(ref){
+      R.sueldoRef=ref;
+      const recQ1=_cjN(ref.q1.recibo), recQ2M=_cjN(ref.q2.recibo)+_cjN(ref.mensual.recibo)+_cjN(ref.extra.recibo);
+      const fueQ1=_cjN(ref.q1.fuera)+_cjN(ref.q1.vales), fueQ2M=_cjN(ref.q2.fuera)+_cjN(ref.q2.vales)+_cjN(ref.mensual.fuera)+_cjN(ref.mensual.vales)+_cjN(ref.extra.fuera);
+      // Recorre los meses del horizonte; agenda solo fechas futuras que no tengan pago real registrado
+      const yaPagado=new Set(ho.pagados.map(p=>p.ym+'-'+(p.parte==='MES'?'Q2':p.parte)));
+      let fuera60=0;
+      for(let i=-1;i<=Math.ceil(H/28)+1;i++){
+        const base=new Date(hoy.slice(0,7)+'-15T12:00:00'); base.setMonth(base.getMonth()+i);
+        const ym=base.getFullYear()+'-'+String(base.getMonth()+1).padStart(2,'0');
+        const sig=new Date(base); sig.setMonth(sig.getMonth()+1);
+        const ymSig=sig.getFullYear()+'-'+String(sig.getMonth()+1).padStart(2,'0');
+        const fQ1=ym+'-'+String(Math.min(ho.diaQ1,28)).padStart(2,'0');
+        const fQ2=ymSig+'-'+String(Math.min(ho.diaQ2,28)).padStart(2,'0');
+        if(fQ1>hoy && fQ1<=hasta && !yaPagado.has(ym+'-Q1')){ dia(fQ1).sue+=recQ1; fuera60+=fueQ1; }
+        if(fQ2>hoy && fQ2<=hasta && !yaPagado.has(ym+'-Q2')){ dia(fQ2).sue+=recQ2M; fuera60+=fueQ2M; }
+      }
+      R.c2.push(['Sueldos por fuera estimados en '+H+' días (base '+ref.periodo+')', -fuera60]);
+    } else {
+      R.avisos.push('Horas todavía no tiene resúmenes del Control mensual: en Horas › Control mensual tocá "↻ Resumen p/ Flujo". Sin eso no se proyectan sueldos.');
+    }
+  }
+  return R;
+}
+
+/* ---------- Render ---------- */
+function cajaRender(){
+  const sec=document.getElementById('sec-caja'); if(!sec) return;
+  const H=+(document.getElementById('cjHorizonte')||{}).value||60;
+  document.querySelectorAll('.cjH').forEach(e=>e.textContent=H);
+
+  // Estado de fuentes
+  const fu=document.getElementById('cjFuentes');
+  const partes=Object.keys(CAJA_BINS).map(k=>{
+    const ok=!!CAJA.src[k] && !CAJA.err[k];
+    return '<span class="cj-src '+(ok?'ok':(CAJA.src[k]?'warn':'err'))+'" title="'+_cjEsc(CAJA.err[k]||'')+'">'+(ok?'●':'○')+' '+CAJA_BINS[k].nombre+(CAJA.err[k]?' ('+_cjEsc(CAJA.err[k])+')':'')+'</span>';
+  });
+  fu.innerHTML = (CAJA.ts ? 'Leído '+new Date(CAJA.ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})+' · ' : '')+partes.join(' ');
+  if(!CAJA.ts) return;
+
+  const R=cajaCalcular(H);
+  const saldo0=R.bancos?R.bancos.total:0;
+
+  // Serie diaria
+  const fechas=[]; for(let i=0;i<=H;i++) fechas.push(_cjAdd(R.hoy,i));
+  let s=saldo0, minS=Infinity, minF=R.hoy, totIn=0, totOut=0;
+  const serie=fechas.map(f=>{ const d=R.dias[f]||{cart:0,cob:0,prop:0,fac:0,sue:0};
+    const inn=d.cart+d.cob, out=d.prop+d.fac+d.sue; totIn+=inn; totOut+=out; s+=inn-out;
+    if(s<minS){minS=s;minF=f;} return {f,inn,out,saldo:s,d}; });
+
+  // KPIs
+  document.getElementById('cjKBancos').textContent = R.bancos?fmtMoneyFull(saldo0):'—';
+  document.getElementById('cjKBancosW').className='kpi-value'+(saldo0<0?' neg':'');
+  document.getElementById('cjKBancosFoot').innerHTML = R.bancos
+    ? Object.keys(R.bancos.cuentas).map(k=>k+' '+fmtMoney(R.bancos.cuentas[k].saldo)).join(' · ')+(R.bancos.antig>3?' · <b style="color:var(--oxide-deep)">saldo de hace '+R.bancos.antig+' d</b>':'')
+    : 'Sin saldos cargados';
+  document.getElementById('cjKIn').textContent=fmtMoneyFull(totIn);
+  document.getElementById('cjKOut').textContent=fmtMoneyFull(totOut);
+  const fin=serie[serie.length-1].saldo;
+  document.getElementById('cjKFin').textContent=(fin<0?'-':'')+fmtMoneyFull(Math.abs(fin));
+  document.getElementById('cjKFinW').className='kpi-value '+(fin<0?'neg':'pos');
+  document.getElementById('cjKFinFoot').innerHTML='al '+_cjFmtD(R.hasta)+' · mínimo <b style="color:'+(minS<0?'var(--oxide-deep)':'inherit')+'">'+_cjM(minS)+'</b> el '+_cjFmtD(minF);
+
+  // Gráfico
+  if(typeof Chart!=='undefined'){
+    setChartDefaults(); destroyChart('cjChart');
+    const ctx=document.getElementById('cjChart');
+    CHARTS.cjChart=new Chart(ctx,{
+      data:{labels:serie.map(x=>_cjFmtD(x.f).slice(0,5)),
+        datasets:[
+          {type:'line',label:'Saldo',data:serie.map(x=>Math.round(x.saldo)),borderColor:COLORS.oxide,backgroundColor:'rgba(26,71,42,0.08)',fill:true,borderWidth:2,pointRadius:0,tension:0,stepped:true,yAxisID:'y',order:0},
+          {type:'bar',label:'Entra',data:serie.map(x=>Math.round(x.inn)),backgroundColor:'rgba(46,158,91,0.55)',yAxisID:'y',order:1,barPercentage:0.9},
+          {type:'bar',label:'Sale',data:serie.map(x=>-Math.round(x.out)),backgroundColor:'rgba(178,59,46,0.55)',yAxisID:'y',order:1,barPercentage:0.9}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        scales:{x:{grid:{display:false},ticks:{maxTicksLimit:12}},y:{ticks:{callback:v=>fmtMoney(v)},grid:{color:'#eeece5'}}},
+        plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+_cjM(c.dataset.label==='Sale'?-c.raw:c.raw)}}}}
+    });
+  }
+  const avisos=R.avisos.slice();
+  if(!R.sueldoRef && CAJA.src.horas) {} // ya avisado
+  document.getElementById('cjNotaChart').innerHTML = 'Arranca del saldo de bancos. Suma cheques y echeqs en cartera (fecha de cobro) y facturas de clientes (fecha de vencimiento); resta cheques propios (fecha de débito), facturas de proveedores (vencimiento) y sueldos de recibo'+(R.sueldoRef?' estimados con '+R.sueldoRef.periodo:'')+'.'+(avisos.length?'<br><b>Ojo:</b> '+avisos.map(_cjEsc).join(' '):'');
+
+  // Tabla semanal
+  const tb=document.querySelector('#cjTblSemanas tbody'); let rows='', sw=saldo0;
+  for(let i=0;i<=H;i+=7){
+    const ini=_cjAdd(R.hoy,i), fin=_cjAdd(R.hoy,Math.min(i+6,H)); const t={cart:0,cob:0,prop:0,fac:0,sue:0};
+    serie.filter(x=>x.f>=ini&&x.f<=fin).forEach(x=>{ for(const k in t) t[k]+=x.d[k]; });
+    const neto=t.cart+t.cob-t.prop-t.fac-t.sue; sw+=neto;
+    rows+='<tr><td>'+_cjFmtD(ini).slice(0,5)+' → '+_cjFmtD(fin).slice(0,5)+'</td><td class="pos">'+_cjMs(t.cart)+'</td><td class="pos">'+_cjMs(t.cob)+'</td><td class="neg">'+_cjMs(-t.prop)+'</td><td class="neg">'+_cjMs(-t.fac)+'</td><td class="neg">'+_cjMs(-t.sue)+'</td><td class="'+(neto<0?'neg':'pos')+'">'+_cjM(neto)+'</td><td class="'+(sw<0?'neg':'')+'"><b>'+_cjM(sw)+'</b></td></tr>';
+  }
+  tb.innerHTML=rows;
+
+  // Vencido
+  document.querySelector('#cjTblVencido tbody').innerHTML = R.venc.map(v=>'<tr><td>'+_cjEsc(v[0])+'</td><td>'+v[1]+'</td><td>'+_cjMs(v[2])+'</td></tr>').join('') || '<tr><td colspan="3" class="mute">Sin datos</td></tr>';
+  // Circuito 2
+  document.querySelector('#cjTblC2 tbody').innerHTML = R.c2.map(v=>'<tr><td>'+_cjEsc(v[0])+'</td><td class="'+(v[1]<0?'neg':'')+'">'+_cjMs(v[1])+'</td></tr>').join('') || '<tr><td colspan="2" class="mute">Sin datos</td></tr>';
+
+  // Movimientos reales 30 días
+  const desde=_cjAdd(R.hoy,-30); const fs=Object.keys(R.mov).filter(f=>f>=desde&&f<=R.hoy).sort().reverse();
+  const T={c1:0,c2:0,p1:0,p2:0,s1:0,s2:0};
+  document.querySelector('#cjTblMov tbody').innerHTML = fs.map(f=>{ const m=R.mov[f]; for(const k in T) T[k]+=m[k];
+    const n1=m.c1-m.p1-m.s1, n2=m.c2-m.p2-m.s2;
+    return '<tr><td>'+_cjFmtD(f)+'</td><td class="pos">'+_cjMs(m.c1)+'</td><td class="pos">'+_cjMs(m.c2)+'</td><td class="neg">'+_cjMs(-m.p1)+'</td><td class="neg">'+_cjMs(-m.p2)+'</td><td class="neg">'+_cjMs(-m.s1)+'</td><td class="neg">'+_cjMs(-m.s2)+'</td><td class="'+(n1<0?'neg':'pos')+'">'+_cjM(n1)+'</td><td class="'+(n2<0?'neg':'pos')+'">'+_cjM(n2)+'</td></tr>'; }).join('')
+    || '<tr><td colspan="9" class="mute">Sin movimientos en los últimos 30 días</td></tr>';
+  const N1=T.c1-T.p1-T.s1, N2=T.c2-T.p2-T.s2;
+  document.querySelector('#cjTblMov tfoot').innerHTML = fs.length ? '<tr><td>Total 30 días</td><td>'+_cjM(T.c1)+'</td><td>'+_cjM(T.c2)+'</td><td>'+_cjM(-T.p1)+'</td><td>'+_cjM(-T.p2)+'</td><td>'+_cjM(-T.s1)+'</td><td>'+_cjM(-T.s2)+'</td><td>'+_cjM(N1)+'</td><td>'+_cjM(N2)+'</td></tr>' : '';
+}
+
+/* ---------- Entrada a la pestaña ---------- */
+function abrirCaja(){
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('appState').classList.remove('hidden');
+  document.body.classList.toggle('sin-excel', !DATA);
+  navegarA('caja');
+}
+function cajaIrAnalisis(){
+  if(DATA){ document.body.classList.remove('sin-excel'); navegarA('resumen'); return; }
+  document.getElementById('appState').classList.add('hidden');
+  document.getElementById('emptyState').classList.remove('hidden');
+  document.getElementById('emptyState').style.display='';
+}
 
 /* ════════════════════════════════════════════════════════════
    PIN · SINCRONIZACIÓN (JSONBin) · PWA   —  Winflex Flujo de Fondos
@@ -2585,6 +3093,7 @@ async function syncLoad(silent){
 }
 
 function _renderDashboard(metaStr){
+  document.body.classList.remove('sin-excel');
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('emptyState').style.display='none';
   document.getElementById('appState').classList.remove('hidden');
