@@ -2566,7 +2566,7 @@ function navegarA(tab){
   const sec=document.getElementById('sec-'+tab); if(sec)sec.classList.add('active');
   setTimeout(()=>Object.values(CHARTS).forEach(c=>{try{c.resize()}catch(_){}}),60);
   if(tab==='caja') cajaCargar(false);
-  if(tab==='vivo' && !FFV.ultimo) abrirFlujoVivo('vivo');
+  if(tab==='vivo' && !FFV.ultimo && !FFV.cargando) abrirFlujoVivo('vivo');
 }
 function abrirModulo(tab){
   if(!MODULOS[tab])return;
@@ -3236,9 +3236,10 @@ function ffvADATA(R){
 
 /* ---------- Entrada: arma todo en vivo y abre la app ---------- */
 async function abrirFlujoVivo(destino){
-  const btns=document.querySelectorAll('.ffv-btn-txt'); btns.forEach(b=>b.textContent='Leyendo las apps…');
-  await Promise.all([cajaCargar(true), ffvCargarCfg()]);
-  btns.forEach(b=>b.textContent='Ver flujo en vivo');
+  if(FFV.cargando) return; FFV.cargando=true;
+  const btns=document.querySelectorAll('.ffv-btn-txt'); btns.forEach(b=>{ if(!b.dataset.t) b.dataset.t=b.textContent; b.textContent='Leyendo las apps…'; });
+  try{ await Promise.all([cajaCargar(true), ffvCargarCfg()]); }
+  finally{ FFV.cargando=false; btns.forEach(b=>b.textContent=b.dataset.t||'Actualizar'); }
   if(FFV.ini==null) FFV.ini=ffvIniEjercicio();
   ffvAplicar();
   navegarA(destino||'vivo');
