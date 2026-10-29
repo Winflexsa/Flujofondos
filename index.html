@@ -2670,7 +2670,8 @@ const _cjM = n => (n<0?'-$ ':'$ ')+fmtMoneyFull(Math.abs(n));
 const _cjMs = n => Math.abs(n)<0.5 ? '<span class="mute">—</span>' : _cjM(n);
 
 async function _cjFetch(binId){
-  const r = await fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest', {headers:{'X-Master-Key':WF_MASTER_KEY,'X-Bin-Meta':'false'}});
+  const ac=new AbortController(); const to=setTimeout(()=>ac.abort(),25000);
+  let r; try{ r = await fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest', {headers:{'X-Master-Key':WF_MASTER_KEY,'X-Bin-Meta':'false'},signal:ac.signal}); } catch(e){ throw new Error(e.name==='AbortError'?'tardó demasiado':e.message); } finally{ clearTimeout(to); }
   if(!r.ok) throw new Error('HTTP '+r.status);
   const d = await r.json();
   return (d && d.record && !Array.isArray(d)) ? d.record : d;
@@ -3032,7 +3033,8 @@ function ffvRubroDe(prov){
 
 async function ffvCargarCfg(){
   try{
-    const r=await fetch('https://api.jsonbin.io/v3/b/'+FFV_CFG_BIN+'/latest',{headers:{'X-Master-Key':WF_MASTER_KEY,'X-Bin-Meta':'false'}});
+    const ac=new AbortController(); setTimeout(()=>ac.abort(),20000);
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+FFV_CFG_BIN+'/latest',{headers:{'X-Master-Key':WF_MASTER_KEY,'X-Bin-Meta':'false'},signal:ac.signal});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d=await r.json(); const rec=d.record||d;
     FFV.cfg={rubrosProv:rec.rubrosProv||{}, manual:rec.manual||{}, params:Object.assign({impPct:5,sinIva:true},rec.params||{})};
